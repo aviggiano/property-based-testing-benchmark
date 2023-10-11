@@ -2,3 +2,4 @@ forge-std/=lib/forge-std/src/
 @openzeppelin/=lib/openzeppelin-contracts/contracts
 @uniswap/=src/
 @crytic/properties/=lib/properties/
+halmos-cheatcodes/=lib/halmos-cheatcodes/src/
