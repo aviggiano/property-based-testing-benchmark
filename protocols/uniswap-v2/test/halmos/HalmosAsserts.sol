@@ -4,48 +4,36 @@ import "forge-std/Test.sol";
 import "../Asserts.sol";
 
 contract HalmosAsserts is Test, Asserts {
-    function gt(
-        uint256 a,
-        uint256 b,
-        string memory reason
-    ) internal virtual override {
-        assertGt(a, b, reason);
+    function gt(uint256 a, uint256 b, string memory) internal virtual override {
+        assert(a > b);
     }
 
     function gte(
         uint256 a,
         uint256 b,
-        string memory reason
+        string memory
     ) internal virtual override {
-        assertGe(a, b, reason);
+        assert(a >= b);
     }
 
-    function lt(
-        uint256 a,
-        uint256 b,
-        string memory reason
-    ) internal virtual override {
-        assertLt(a, b, reason);
+    function lt(uint256 a, uint256 b, string memory) internal virtual override {
+        assert(a < b);
     }
 
     function lte(
         uint256 a,
         uint256 b,
-        string memory reason
+        string memory
     ) internal virtual override {
-        assertLe(a, b, reason);
+        assert(a <= b);
     }
 
-    function eq(
-        uint256 a,
-        uint256 b,
-        string memory reason
-    ) internal virtual override {
-        assertEq(a, b, reason);
+    function eq(uint256 a, uint256 b, string memory) internal virtual override {
+        assert(a == b);
     }
 
-    function t(bool b, string memory reason) internal virtual override {
-        assertTrue(b, reason);
+    function t(bool b, string memory) internal virtual override {
+        assert(b);
     }
 
     function between(
