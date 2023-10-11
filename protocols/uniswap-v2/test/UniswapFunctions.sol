@@ -11,10 +11,10 @@ abstract contract UniswapFunctions is Setup, Asserts {
         uint256 amount0,
         uint256 amount1
     ) internal returns (uint256, uint256) {
-        amount0 = between(amount0, 1000, type(uint256).max);
-        amount1 = between(amount1, 1000, type(uint256).max);
+        amount0 = between(amount0, 1001, type(uint64).max);
+        amount1 = between(amount1, 1001, type(uint64).max);
 
-        _mintTokens(amount0, amount1);
+        _mintTokensOnce(amount0, amount1);
 
         hevm.prank(user);
         token0.transfer(address(pair), amount0);
@@ -49,7 +49,7 @@ abstract contract UniswapFunctions is Setup, Asserts {
         uint256 amount1,
         bool exact
     ) internal returns (uint256) {
-        _mintTokens(amount0, amount1);
+        _mintTokensOnce(amount0, amount1);
 
         uint256 balance0Before = token0.balanceOf(user);
         uint256 balance1Before = token1.balanceOf(user);

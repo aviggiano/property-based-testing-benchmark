@@ -15,9 +15,10 @@ contract Setup {
     UniswapV2Router01 internal router;
 
     address internal user;
+    bool complete;
 
     function _setup() internal {
-        user = address(0x123);
+        user = address(0x123456);
         token0 = new UniswapV2ERC20();
         token1 = new UniswapV2ERC20();
         factory = new UniswapV2Factory(address(this));
@@ -34,14 +35,18 @@ contract Setup {
         token1 = UniswapV2ERC20(testTokenB);
     }
 
-    function _mintTokens(uint256 amount1, uint256 amount2) internal {
-        token1.mint(address(user), amount2);
-        token0.mint(address(user), amount1);
+    function _mintTokensOnce(uint256 amount0, uint256 amount1) internal {
+        if(complete) return;
+
+        token0.mint(address(user), amount0);
+        token1.mint(address(user), amount1);
 
         hevm.prank(user);
         token0.approve(address(router), type(uint256).max);
 
         hevm.prank(user);
         token1.approve(address(router), type(uint256).max);
+
+        complete = true;
     }
 }

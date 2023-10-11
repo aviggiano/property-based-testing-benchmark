@@ -59,4 +59,10 @@ contract FoundryAsserts is Test, Asserts {
         }
         return value;
     }
+
+    function precondition(
+        bool p
+    ) internal virtual override {
+        vm.assume(p);
+    }
 }
