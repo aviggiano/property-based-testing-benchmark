@@ -11,7 +11,7 @@ help:
 halmos:
 	for protocol in $(PROTOCOLS); do \
 		cd $$protocol; \
-		halmos --solver-subprocess --function test_ --print-potential-counterexample --solver-timeout-assertion 0; \
+		halmos --solver-subprocess --contract HalmosUniswapV2Properties --function test_ --print-potential-counterexample --solver-timeout-assertion 0; \
 	done
 
 foundry:
