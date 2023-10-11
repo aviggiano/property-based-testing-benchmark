@@ -7,14 +7,30 @@ import "./Setup.sol";
 import "./Asserts.sol";
 
 abstract contract UniswapFunctions is Setup, Asserts {
+    function _provideInitialLiquidity(
+        uint256 amount0,
+        uint256 amount1
+    ) internal returns (uint256, uint256) {
+        amount0 = between(
+            amount0,
+            pair.MINIMUM_LIQUIDITY() + 1,
+            token0.balanceOf(user)
+        );
+        amount1 = between(
+            amount1,
+            pair.MINIMUM_LIQUIDITY() + 1,
+            token1.balanceOf(user)
+        );
+
+        return _provideLiquidity(amount0, amount1);
+    }
+
     function _provideLiquidity(
         uint256 amount0,
         uint256 amount1
     ) internal returns (uint256, uint256) {
-        amount0 = between(amount0, 1001, type(uint64).max);
-        amount1 = between(amount1, 1001, type(uint64).max);
-
-        _mintTokensOnce(amount0, amount1);
+        amount0 = between(amount0, 0, token0.balanceOf(user));
+        amount1 = between(amount1, 0, token1.balanceOf(user));
 
         hevm.prank(user);
         token0.transfer(address(pair), amount0);
@@ -23,22 +39,24 @@ abstract contract UniswapFunctions is Setup, Asserts {
         token1.transfer(address(pair), amount1);
 
         hevm.prank(user);
-        pair.mint(user);
+        try pair.mint(user) {} catch {
+            precondition(false);
+        }
 
         return (amount0, amount1);
     }
 
-    function _burnLiquidity(
-        uint256 amount,
-        uint256 balance
-    ) internal returns (uint256) {
-        amount = between(amount, 1, balance);
+    function _burnLiquidity(uint256 amount) internal returns (uint256) {
+        precondition(pair.balanceOf(user) >= 1);
+        amount = between(amount, 1, pair.balanceOf(user));
 
         hevm.prank(user);
         pair.transfer(address(pair), amount);
 
         hevm.prank(user);
-        pair.burn(user);
+        try pair.burn(user) {} catch {
+            precondition(false);
+        }
 
         return amount;
     }
@@ -49,8 +67,6 @@ abstract contract UniswapFunctions is Setup, Asserts {
         uint256 amount1,
         bool exact
     ) internal returns (uint256) {
-        _mintTokensOnce(amount0, amount1);
-
         uint256 balance0Before = token0.balanceOf(user);
         uint256 balance1Before = token1.balanceOf(user);
 
@@ -78,7 +94,7 @@ abstract contract UniswapFunctions is Setup, Asserts {
                 reserve0Before,
                 reserve1Before
             );
-            require(amount1Out > 0);
+            precondition(amount1Out > 0);
 
             hevm.prank(user);
             token0.transfer(address(pair), amount0In);
@@ -89,7 +105,7 @@ abstract contract UniswapFunctions is Setup, Asserts {
                 reserve1Before,
                 reserve0Before
             );
-            require(amount0Out > 0);
+            precondition(amount0Out > 0);
 
             hevm.prank(user);
             token1.transfer(address(pair), amount1In);

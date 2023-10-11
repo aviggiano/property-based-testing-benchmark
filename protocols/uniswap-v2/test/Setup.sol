@@ -4,7 +4,6 @@ import "@uniswap/UniswapV2Pair.sol";
 import "@uniswap/UniswapV2ERC20.sol";
 import "@uniswap/UniswapV2Factory.sol";
 import "@uniswap/contracts/libraries/UniswapV2Library.sol";
-import "@uniswap/contracts/UniswapV2Router01.sol";
 import "@crytic/properties/contracts/util/Hevm.sol";
 
 contract Setup {
@@ -12,18 +11,15 @@ contract Setup {
     UniswapV2ERC20 internal token1;
     UniswapV2Pair internal pair;
     UniswapV2Factory internal factory;
-    UniswapV2Router01 internal router;
 
     address internal user;
-    bool complete;
 
     function _setup() internal {
         user = address(0x123456);
         token0 = new UniswapV2ERC20();
         token1 = new UniswapV2ERC20();
         factory = new UniswapV2Factory(address(this));
-        factory.setFeeTo(address(this));
-        router = new UniswapV2Router01(address(factory), address(0));
+        // factory.setFeeTo(address(this));
         pair = UniswapV2Pair(
             factory.createPair(address(token0), address(token1))
         );
@@ -33,20 +29,8 @@ contract Setup {
         );
         token0 = UniswapV2ERC20(testTokenA);
         token1 = UniswapV2ERC20(testTokenB);
-    }
 
-    function _mintTokensOnce(uint256 amount0, uint256 amount1) internal {
-        if(complete) return;
-
-        token0.mint(address(user), amount0);
-        token1.mint(address(user), amount1);
-
-        hevm.prank(user);
-        token0.approve(address(router), type(uint256).max);
-
-        hevm.prank(user);
-        token1.approve(address(router), type(uint256).max);
-
-        complete = true;
+        token0.mint(user, type(uint64).max);
+        token1.mint(user, type(uint64).max);
     }
 }

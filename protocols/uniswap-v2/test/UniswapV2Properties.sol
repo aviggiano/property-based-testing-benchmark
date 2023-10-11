@@ -16,12 +16,16 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
 
     function test_provide_liquidity_increases_k(
         uint256 amount0,
-        uint256 amount1
+        uint256 amount1,
+        uint256 amount00,
+        uint256 amount11
     ) public {
+        _provideInitialLiquidity(amount0, amount1);
+
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
         uint kBefore = reserve0Before * reserve1Before;
 
-        (amount0, amount1) = _provideLiquidity(amount0, amount1);
+        _provideLiquidity(amount00, amount11);
 
         (uint reserve0After, uint reserve1After, ) = pair.getReserves();
         uint kAfter = reserve0After * reserve1After;
@@ -30,11 +34,15 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
 
     function test_provide_liquidity_increases_lp_total_supply(
         uint256 amount0,
-        uint256 amount1
+        uint256 amount1,
+        uint256 amount00,
+        uint256 amount11
     ) public {
+        _provideInitialLiquidity(amount0, amount1);
+
         uint256 lpTokenSupplyBefore = pair.totalSupply();
 
-        (amount0, amount1) = _provideLiquidity(amount0, amount1);
+        _provideLiquidity(amount00, amount11);
 
         uint256 lpTokenSupplyAfter = pair.totalSupply();
 
@@ -45,25 +53,25 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
+    // FIXME
     function test_provide_liquidity_does_not_change_token_price(
         uint256 amount0,
         uint256 amount1,
+        uint256 amount00,
+        uint256 amount11,
         bool zeroForOne,
         uint256 amountIn
     ) public {
-        _provideLiquidity(amount0, amount1);
+        _provideInitialLiquidity(amount0, amount1);
 
         UniswapV2ERC20 inToken = zeroForOne ? token0 : token1;
+
         precondition(inToken.balanceOf(user) >= 1);
 
-        uint256 actualAmountIn = between(
-            amountIn,
-            1,
-            inToken.balanceOf(user)
-        );
+        uint256 actualAmountIn = between(amountIn, 1, inToken.balanceOf(user));
         uint256 amountOutBefore = _getTokenPrice(zeroForOne, actualAmountIn);
 
-        (amount0, amount1) = _provideLiquidity(amount0, amount1);
+        _provideLiquidity(amount00, amount11);
 
         uint256 amountOutAfter = _getTokenPrice(zeroForOne, actualAmountIn);
 
@@ -76,11 +84,15 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
 
     function test_provide_liquidity_increases_reserves(
         uint256 amount0,
-        uint256 amount1
+        uint256 amount1,
+        uint256 amount00,
+        uint256 amount11
     ) public {
+        _provideInitialLiquidity(amount0, amount1);
+
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
 
-        (amount0, amount1) = _provideLiquidity(amount0, amount1);
+        _provideLiquidity(amount00, amount11);
 
         (uint reserve0After, uint reserve1After, ) = pair.getReserves();
 
@@ -98,11 +110,15 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
 
     function test_provide_liquidity_increases_user_lp_balance(
         uint256 amount0,
-        uint256 amount1
+        uint256 amount1,
+        uint256 amount00,
+        uint256 amount11
     ) public {
+        _provideInitialLiquidity(amount0, amount1);
+
         uint lpTokenBalanceBefore = pair.balanceOf(user);
 
-        (amount0, amount1) = _provideLiquidity(amount0, amount1);
+        _provideLiquidity(amount00, amount11);
 
         uint lpTokenBalanceAfter = pair.balanceOf(user);
 
@@ -113,16 +129,17 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
-    function test_remove_liquidity_decreases_k(uint256 amount) public {
-        pair.sync();
-
-        uint lpTokenBalanceBefore = pair.balanceOf(user);
-        precondition(lpTokenBalanceBefore > 0);
+    function test_remove_liquidity_decreases_k(
+        uint256 amount0,
+        uint256 amount1,
+        uint256 amount
+    ) public {
+        _provideInitialLiquidity(amount0, amount1);
 
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
         uint kBefore = reserve0Before * reserve1Before;
 
-        amount = _burnLiquidity(amount, lpTokenBalanceBefore);
+        amount = _burnLiquidity(amount);
 
         (uint reserve0After, uint reserve1After, ) = pair.getReserves();
         uint kAfter = reserve0After * reserve1After;
@@ -130,15 +147,15 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
     }
 
     function test_remove_liquidity_decreases_lp_total_supply(
+        uint256 amount0,
+        uint256 amount1,
         uint256 amount
     ) public {
-        pair.sync();
-        uint lpTokenBalanceBefore = pair.balanceOf(user);
-        precondition(lpTokenBalanceBefore > 0);
+        _provideInitialLiquidity(amount0, amount1);
 
         uint256 supplyBefore = pair.totalSupply();
 
-        amount = _burnLiquidity(amount, lpTokenBalanceBefore);
+        _burnLiquidity(amount);
 
         uint256 supplyAfter = pair.totalSupply();
 
@@ -149,24 +166,21 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
+    // FIXME
     function test_remove_liquidity_does_not_change_token_price(
+        uint256 amount0,
+        uint256 amount1,
         uint256 amount,
         bool zeroForOne,
         uint256 amountIn
     ) public {
-        uint lpTokenBalanceBefore = pair.balanceOf(user);
-        precondition(lpTokenBalanceBefore > 0);
+        _provideInitialLiquidity(amount0, amount1);
 
         UniswapV2ERC20 inToken = zeroForOne ? token0 : token1;
-        uint256 actualAmountIn = between(
-            amountIn,
-            1,
-            inToken.balanceOf(user)
-        );
+        uint256 actualAmountIn = between(amountIn, 1, inToken.balanceOf(user));
         uint256 amountOutBefore = _getTokenPrice(zeroForOne, actualAmountIn);
 
-        // Burn liquidity
-        amount = _burnLiquidity(amount, lpTokenBalanceBefore);
+        _burnLiquidity(amount);
 
         uint256 amountOutAfter = _getTokenPrice(zeroForOne, actualAmountIn);
 
@@ -177,15 +191,16 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
-    function test_remove_liquidity_decreases_reserves(uint256 amount) public {
-        pair.sync();
-
-        uint lpTokenBalanceBefore = pair.balanceOf(user);
-        precondition(lpTokenBalanceBefore > 0);
+    function test_remove_liquidity_decreases_reserves(
+        uint256 amount0,
+        uint256 amount1,
+        uint256 amount
+    ) public {
+        _provideInitialLiquidity(amount0, amount1);
 
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
 
-        amount = _burnLiquidity(amount, lpTokenBalanceBefore);
+        _burnLiquidity(amount);
 
         (uint reserve0After, uint reserve1After, ) = pair.getReserves();
         gt(
@@ -201,14 +216,14 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
     }
 
     function test_remove_liquidity_decreases_user_lp_balance(
+        uint256 amount0,
+        uint256 amount1,
         uint256 amount
     ) public {
-        pair.sync();
+        _provideInitialLiquidity(amount0, amount1);
 
         uint lpTokenBalanceBefore = pair.balanceOf(user);
-        precondition(lpTokenBalanceBefore > 0);
-
-        amount = _burnLiquidity(amount, lpTokenBalanceBefore);
+        amount = _burnLiquidity(amount);
 
         uint lpTokenBalanceAfter = pair.balanceOf(user);
 
@@ -219,13 +234,14 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
-    // Swapping
     function test_swap_does_not_decrease_k(
+        uint256 amount00,
+        uint256 amount11,
         bool zeroForOne,
         uint256 amount0,
         uint256 amount1
     ) public {
-        pair.skim(address(this));
+        _provideInitialLiquidity(amount00, amount11);
 
         precondition(zeroForOne ? amount0 > 0 : amount1 > 0);
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
@@ -240,11 +256,12 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
     }
 
     function test_swap_two_way_does_not_result_in_profit(
+        uint256 amount0,
+        uint256 amount1,
         bool zeroForOne,
         uint256 amountIn
     ) public {
-        (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
-        precondition(reserve0Before > 0 && reserve1Before > 0);
+        _provideInitialLiquidity(amount0, amount1);
 
         uint256 balanceBefore0 = token0.balanceOf(user);
         uint256 balanceBefore1 = token1.balanceOf(user);
@@ -268,11 +285,14 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
     }
 
     function test_swap_increases_user_out_balance(
+        uint256 amount00,
+        uint256 amount11,
         bool zeroForOne,
         uint256 amount0,
         uint256 amount1
     ) public {
-        pair.skim(address(this));
+        _provideInitialLiquidity(amount00, amount11);
+
         UniswapV2ERC20 outToken = zeroForOne ? token1 : token0;
         uint256 outBalanceBefore = outToken.balanceOf(user);
 
@@ -290,21 +310,22 @@ abstract contract UniswapV2Properties is Test, UniswapFunctions {
         );
     }
 
+    // FIXME
     function test_swap_out_price_increases_in_price_decreases(
+        uint256 amount0,
+        uint256 amount1,
         bool zeroForOne,
         uint256 amountIn
     ) public {
+        _provideInitialLiquidity(amount0, amount1);
+
         (uint reserve0Before, uint reserve1Before, ) = pair.getReserves();
         precondition(reserve0Before > 0 && reserve1Before > 0);
 
         UniswapV2ERC20 inToken = zeroForOne ? token0 : token1;
         UniswapV2ERC20 outToken = zeroForOne ? token1 : token0;
 
-        uint256 actualAmountIn0 = between(
-            amountIn,
-            1,
-            inToken.balanceOf(user)
-        );
+        uint256 actualAmountIn0 = between(amountIn, 1, inToken.balanceOf(user));
         uint256 actualAmountIn1 = between(
             amountIn,
             1,
