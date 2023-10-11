@@ -7,3 +7,6 @@
 [submodule "protocols/uniswap-v2/lib/openzeppelin-contracts"]
 	path = protocols/uniswap-v2/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "protocols/uniswap-v2/lib/halmos-cheatcodes"]
+	path = protocols/uniswap-v2/lib/halmos-cheatcodes
+	url = https://github.com/a16z/halmos-cheatcodes
