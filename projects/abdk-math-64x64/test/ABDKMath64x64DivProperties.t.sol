@@ -28,8 +28,10 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
         vm.assume(y < ZERO_FP);
 
         try abdk.div(x, y) returns (int128 x_y) {
-            try abdk.div(x, abdk.neg(y)) returns (int128 x_minus_y) {
-                assertEq(x_y, abdk.neg(x_minus_y));
+            try abdk.neg(y) returns (int128 neg_y) {
+                try abdk.div(x, neg_y) returns (int128 x_neg_y) {
+                    assertEq(x_y, abdk.neg(x_neg_y));
+                } catch {}
             } catch {}
         } catch {}
     }
@@ -48,13 +50,15 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
         vm.assume(y != ZERO_FP);
 
         try abdk.div(x, y) returns (int128 x_y) {
-            try abdk.abs(y) returns (int128 abs_y) {
+            try abdk.abs(x_y) returns (int128 abs_x_y) {
                 try abdk.abs(x) returns (int128 abs_x) {
-                    if (abs_y <= ONE_FP) {
-                        assertGe(x_y, abs_x);
-                    } else {
-                        assertLe(x_y, abs_x);
-                    }
+                    try abdk.abs(y) returns (int128 abs_y) {
+                        if (abs_y <= ONE_FP) {
+                            assertGe(abs_x_y, abs_x);
+                        } else {
+                            assertLe(abs_x_y, abs_x);
+                        }
+                    } catch {}
                 } catch {}
             } catch {}
         } catch {}
@@ -80,13 +84,11 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
 
     // MAX/x >= 1 <=> |x| >= 1
     function test_div_maximum_numerator(int128 x) public {
-        int128 div_large;
-
         try abdk.div(MAX_64x64, x) {
             // If it didn't revert, then |x| >= 1
-            div_large = abdk.div(MAX_64x64, x);
-
-            assertGe(abdk.abs(x), ONE_FP);
+            try abdk.abs(x) returns (int128 abs_x) {
+                assertGe(abs_x, ONE_FP);
+            } catch {}
         } catch {
             // Expected revert as result is higher than max
         }
