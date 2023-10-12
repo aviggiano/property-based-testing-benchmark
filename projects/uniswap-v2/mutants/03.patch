@@ -1,7 +1,7 @@
-diff --git a/protocols/uniswap-v2/src/UniswapV2Pair.sol b/protocols/uniswap-v2/src/UniswapV2Pair.sol
+diff --git a/projects/uniswap-v2/src/UniswapV2Pair.sol b/projects/uniswap-v2/src/UniswapV2Pair.sol
 index 83cfddc..6d68268 100644
---- a/protocols/uniswap-v2/src/UniswapV2Pair.sol
-+++ b/protocols/uniswap-v2/src/UniswapV2Pair.sol
+--- a/projects/uniswap-v2/src/UniswapV2Pair.sol
++++ b/projects/uniswap-v2/src/UniswapV2Pair.sol
 @@ -235,7 +235,8 @@ import "./interfaces/IUniswapV2Callee.sol";
              balance1 = IERC20(_token1).balanceOf(address(this));
          }

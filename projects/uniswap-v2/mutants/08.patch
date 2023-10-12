@@ -1,7 +1,7 @@
-diff --git a/protocols/uniswap-v2/src/UniswapV2ERC20.sol b/protocols/uniswap-v2/src/UniswapV2ERC20.sol
+diff --git a/projects/uniswap-v2/src/UniswapV2ERC20.sol b/projects/uniswap-v2/src/UniswapV2ERC20.sol
 index f15a91c..93f291c 100644
---- a/protocols/uniswap-v2/src/UniswapV2ERC20.sol
-+++ b/protocols/uniswap-v2/src/UniswapV2ERC20.sol
+--- a/projects/uniswap-v2/src/UniswapV2ERC20.sol
++++ b/projects/uniswap-v2/src/UniswapV2ERC20.sol
 @@ -59,7 +59,7 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
  
      function _transfer(address from, address to, uint value) private {

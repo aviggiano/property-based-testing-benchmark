@@ -1,6 +1,6 @@
 default: help
 
-PROTOCOLS = $(wildcard protocols/*)
+PROJECTS = $(wildcard projects/*)
 
 
 help:
@@ -9,15 +9,15 @@ help:
 	@echo "	make foundry					use foundry"
 
 halmos:
-	for protocol in $(PROTOCOLS); do \
-		cd $$protocol; \
+	for project in $(PROJECTS); do \
+		cd $$project; \
 		git apply test/halmos/halmos.patch; \
 		halmos --solver-subprocess --contract HalmosUniswapV2Properties --function test_ --print-potential-counterexample --solver-timeout-assertion 0; \
 		git apply -R test/halmos/halmos.patch; \
 	done
 
 foundry:
-	for protocol in $(PROTOCOLS); do \
-		cd $$protocol; \
+	for project in $(PROJECTS); do \
+		cd $$project; \
 		forge test --match-path test/foundry/FoundryUniswapV2Properties.t.sol; \
 	done

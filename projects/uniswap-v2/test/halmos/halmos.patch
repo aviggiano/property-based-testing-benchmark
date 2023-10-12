@@ -1,7 +1,7 @@
-diff --git a/protocols/uniswap-v2/src/UniswapV2Pair.sol b/protocols/uniswap-v2/src/UniswapV2Pair.sol
+diff --git a/projects/uniswap-v2/src/UniswapV2Pair.sol b/projects/uniswap-v2/src/UniswapV2Pair.sol
 index 83cfddc..3a4bdfa 100644
---- a/protocols/uniswap-v2/src/UniswapV2Pair.sol
-+++ b/protocols/uniswap-v2/src/UniswapV2Pair.sol
+--- a/projects/uniswap-v2/src/UniswapV2Pair.sol
++++ b/projects/uniswap-v2/src/UniswapV2Pair.sol
 @@ -1,14 +1,14 @@
  pragma solidity ^0.8.0;
  
