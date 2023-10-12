@@ -16,3 +16,6 @@
 [submodule "projects/abdk-math-64x64/lib/abdk-libraries-solidity"]
 	path = projects/abdk-math-64x64/lib/abdk-libraries-solidity
 	url = https://github.com/abdk-consulting/abdk-libraries-solidity
+[submodule "projects/abdk-math-64x64/lib/properties"]
+	path = projects/abdk-math-64x64/lib/properties
+	url = https://github.com/crytic/properties
