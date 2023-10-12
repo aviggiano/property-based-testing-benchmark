@@ -1,53 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-import "@abdk/ABDKMath64x64.sol";
-import "./ABDKMath64x64Wrapper.sol";
+import "./ABDKMath64x64Setup.t.sol";
 
-// https://github.com/crytic/properties/blob/d573bf661990f11cc033e2b5b749deec962b5243/contracts/Math/ABDKMath64x64/ABDKMath64x64PropertyTests.sol
-contract ABDKMath64x64Properties is Test {
-    ABDKMath64x64Wrapper internal abdk;
-
-    int128 internal ZERO_FP = ABDKMath64x64.fromInt(0);
-    int128 internal ONE_FP = ABDKMath64x64.fromInt(1);
-    int128 internal MINUS_ONE_FP = ABDKMath64x64.fromInt(-1);
-    int128 internal TWO_FP = ABDKMath64x64.fromInt(2);
-    int128 internal THREE_FP = ABDKMath64x64.fromInt(3);
-    int128 internal EIGHT_FP = ABDKMath64x64.fromInt(8);
-    int128 internal THOUSAND_FP = ABDKMath64x64.fromInt(1000);
-    int128 internal MINUS_SIXTY_FOUR_FP = ABDKMath64x64.fromInt(-64);
-    int128 internal EPSILON = 1;
-    int128 internal ONE_TENTH_FP =
-        ABDKMath64x64.div(ABDKMath64x64.fromInt(1), ABDKMath64x64.fromInt(10));
-
-    uint256 internal REQUIRED_SIGNIFICANT_BITS = 10;
-
-    int128 private constant MIN_64x64 = -0x80000000000000000000000000000000;
-    int128 private constant MAX_64x64 = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-    int256 private constant MAX_256 =
-        0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-    int256 private constant MIN_256 =
-        -0x8000000000000000000000000000000000000000000000000000000000000000;
-    uint256 private constant MAX_U256 =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-
-    function setUp() public {
-        abdk = new ABDKMath64x64Wrapper();
-    }
-
-    // toInt(fromInt(x)) == x
-    function test_from_int_identity(int256 x) public {
-        vm.assume(x >= -0x8000000000000000 && x <= 0x7FFFFFFFFFFFFFFF);
-        assertEq(abdk.toInt(abdk.fromInt(x)), x);
-    }
-
-    // toUInt(fromUInt(x)) == x
-    function test_from_uint_identity(uint256 x) public {
-        vm.assume(x <= 0x7FFFFFFFFFFFFFFF);
-        assertEq(abdk.toUInt(abdk.fromUInt(x)), x);
-    }
-
+contract ABDKMath64x64AddProperties is ABDKMath64x64Setup {
     // x + y == y + x
     function test_add_commutative(int128 x, int128 y) public {
         try abdk.add(x, y) returns (int128 x_y) {
