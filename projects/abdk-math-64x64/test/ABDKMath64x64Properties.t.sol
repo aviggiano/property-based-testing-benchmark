@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "@abdk/ABDKMath64x64.sol";
 
-contract ABDKMath64x64Test is Test {
+contract ABDKMath64x64Properties is Test {
     function setUp() public {}
 
     function test_from_int_identity(int256 x) public {
