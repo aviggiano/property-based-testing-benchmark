@@ -13,3 +13,6 @@
 [submodule "projects/abdk-math-64x64/lib/forge-std"]
 	path = projects/abdk-math-64x64/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "projects/abdk-math-64x64/lib/abdk-libraries-solidity"]
+	path = projects/abdk-math-64x64/lib/abdk-libraries-solidity
+	url = https://github.com/abdk-consulting/abdk-libraries-solidity
