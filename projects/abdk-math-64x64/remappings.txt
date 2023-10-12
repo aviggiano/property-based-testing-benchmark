@@ -1,1 +1,2 @@
 @abdk/=lib/abdk-libraries-solidity/
+@crytic/properties/=lib/properties/
