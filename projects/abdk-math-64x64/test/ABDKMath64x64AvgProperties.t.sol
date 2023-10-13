@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "./ABDKMath64x64Setup.t.sol";
 
-contract ABDKMath64x64ConversionProperties is ABDKMath64x64Setup {
+contract ABDKMath64x64AvgProperties is ABDKMath64x64Setup {
     // avg(x, y) >= min(x, y) && avg(x, y) <= max(x, y)
     function test_avg_values_in_range(int128 x, int128 y) public {
         try abdk.avg(x, y) returns (int128 avg_xy) {

@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "./ABDKMath64x64Setup.t.sol";
 
-contract ABDKMath64x64ConversionProperties is ABDKMath64x64Setup {
+contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
     // 1 / (1 / x) == x
     function test_inv_double_inverse(int128 x) public {
         vm.assume(x != ZERO_FP);

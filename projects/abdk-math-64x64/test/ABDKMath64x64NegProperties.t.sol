@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "./ABDKMath64x64Setup.t.sol";
 
-contract ABDKMath64x64ConversionProperties is ABDKMath64x64Setup {
+contract ABDKMath64x64NegProperties is ABDKMath64x64Setup {
     // -(-x) == x
     function test_neg_double_negation(int128 x) public {
         try abdk.neg(x) returns (int128 neg_x) {
