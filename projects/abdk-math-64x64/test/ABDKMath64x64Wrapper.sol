@@ -191,7 +191,7 @@ contract ABDKMath64x64Wrapper {
         int128 a,
         int128 b,
         uint256 bits
-    ) internal pure returns (bool) {
+    ) public pure returns (bool) {
         // Get the number of bits in a and b
         // Since log(x) returns in the interval [-64, 63), add 64 to be in the interval [0, 127)
         uint256 a_bits = uint256(int256(toInt(log_2(a)) + 64));
