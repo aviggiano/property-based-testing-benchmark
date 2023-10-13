@@ -39,7 +39,7 @@ contract ABDKMath64x64MulProperties is ABDKMath64x64Setup {
                                 try abdk.mul(x_y, z) returns (int128 xy_z) {
                                     try abdk.mul(x, y_z) returns (int128 x_yz) {
                                         assertTrue(
-                                            equal_within_tolerance(
+                                            abdk.equal_within_tolerance(
                                                 xy_z,
                                                 x_yz,
                                                 ONE_TENTH_FP
@@ -75,7 +75,7 @@ contract ABDKMath64x64MulProperties is ABDKMath64x64Setup {
 
                                 try abdk.mul(x, z) returns (int128 x_times_z) {
                                     assertTrue(
-                                        equal_within_tolerance(
+                                        abdk.equal_within_tolerance(
                                             abdk.add(x_times_y, x_times_z),
                                             x_times_y_plus_z,
                                             ONE_TENTH_FP

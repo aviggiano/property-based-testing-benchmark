@@ -39,7 +39,7 @@ contract ABDKMath64x64AbsProperties is ABDKMath64x64Setup {
 
                                 // Assume a tolerance of two bits of precision
                                 assertTrue(
-                                    equal_within_precision(
+                                    abdk.equal_within_precision(
                                         abs_xy,
                                         abs_x_abs_y,
                                         2
