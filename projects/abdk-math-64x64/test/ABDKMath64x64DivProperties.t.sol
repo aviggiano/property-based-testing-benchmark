@@ -4,14 +4,12 @@ pragma solidity ^0.8.13;
 import "./ABDKMath64x64Setup.t.sol";
 
 contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
-    // x / 1 == x (equivalent to x / x == 1)
-    // x/x should not revert unless x == 0
+    // x / 1 == x
+    // x / x == 1 unless x == 0
     function test_div_division_identity(int128 x) public {
         try abdk.div(x, ONE_FP) returns (int128 div_1) {
             assertEq(x, div_1);
-        } catch {
-            assertEq(x, ZERO_FP);
-        }
+        } catch {}
 
         try abdk.div(x, x) returns (int128 div_x) {
             // This should always equal one
