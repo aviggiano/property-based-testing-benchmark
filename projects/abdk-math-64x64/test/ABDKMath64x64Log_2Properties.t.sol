@@ -68,11 +68,7 @@ contract ABDKMath64x64Log_2Properties is ABDKMath64x64Setup {
 
     // log_2(MAX) > 0
     function test_log_2_maximum() public {
-        int128 result;
-
-        try abdk.log_2(MAX_64x64) {
-            // Expected, should not revert and the result must be > 0
-            result = abdk.log_2(MAX_64x64);
+        try abdk.log_2(MAX_64x64) returns(int128 result){
             assertGt(result, ZERO_FP);
         } catch {
             // Unexpected
