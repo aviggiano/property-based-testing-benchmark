@@ -17,12 +17,12 @@ contract ABDKMath64x64Exp_2Properties is ABDKMath64x64Setup {
 
     // if y = log_2(x) then exp_2(y) == x
     function test_exp_2_inverse(int128 x) public {
-        try abdk.log_2(x) returns (int128 log2_x) {
-            try abdk.exp_2(log2_x) returns (int128 exp_2_x) {
+        try abdk.log_2(x) returns (int128 log_2_x) {
+            try abdk.exp_2(log_2_x) returns (int128 exp_2_x) {
                 uint256 bits = 50;
 
-                if (log2_x < ZERO_FP) {
-                    bits = uint256(int256(bits) + int256(log2_x));
+                if (log_2_x < ZERO_FP) {
+                    bits = uint256(int256(bits) + int256(log_2_x));
                 }
 
                 try
@@ -38,7 +38,6 @@ contract ABDKMath64x64Exp_2Properties is ABDKMath64x64Setup {
         } catch {}
     }
 
-    // Test for negative exponent
     // exp_2(-x) == inv( exp_2(x) )
     function test_exp_2_negative_exponent(int128 x) public {
         vm.assume(x < ZERO_FP && x != MIN_64x64);
