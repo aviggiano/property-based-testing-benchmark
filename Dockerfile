@@ -46,9 +46,9 @@ RUN rm echidna.zip echidna.tar.gz
 
 RUN echo "Install foundry"
 RUN curl -L https://foundry.paradigm.xyz | bash
-RUN export PATH="$PATH:$HOME/.foundry/bin"
-ENV PATH="$PATH:$HOME/.foundry/bin" 
-RUN PATH="$PATH:$HOME/.foundry/bin" foundryup 
+RUN export PATH="$PATH:/root/.foundry/bin"
+ENV PATH="$PATH:/root/.foundry/bin"
+RUN PATH="$PATH:/root/.foundry/bin" foundryup
 
 RUN echo "Install go"
 RUN apt-get update
@@ -67,4 +67,4 @@ RUN echo "Install halmos"
 RUN pip3 install git+https://github.com/a16z/halmos
 
 COPY . .
-CMD ["python3", "/home/ubuntu/benchmark.py", "input1", "output"]
+ENTRYPOINT python3 -m benchmark "$@"
