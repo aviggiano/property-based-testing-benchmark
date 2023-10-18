@@ -14,15 +14,14 @@ terraform {
 }
 
 locals {
-  container_name = "benchmark"
-  example        = "benchmark-example"
+  namespace = "property-benchmark"
 }
 
 provider "aws" {
   region = "us-east-1"
 
   default_tags {
-    tags = { example = local.example }
+    tags = { Namespace = local.namespace }
   }
 }
 
@@ -47,7 +46,7 @@ module "ecr" {
   repository_force_delete = true
   # https://stackoverflow.com/a/75131873/1849920
   repository_image_tag_mutability = "MUTABLE"
-  repository_name         = local.example
+  repository_name                 = local.namespace
   repository_lifecycle_policy = jsonencode({
     rules = [{
       action       = { type = "expire" }
@@ -62,21 +61,11 @@ module "ecr" {
   })
 }
 
-# * Build our Image locally with the appropriate name so that we can push 
-# * our Image to our Repository in AWS. Also, give it a random image tag.
-# resource "docker_image" "this" {
-#   name = format("%v:%v", module.ecr.repository_url, formatdate("YYYY-MM-DD'T'hh-mm-ss", timestamp()))
-#   # https://stackoverflow.com/questions/42494853/standard-init-linux-go178-exec-user-process-caused-exec-format-error
-#   # platform = "linux/amd64"
-#   build { context = ".." } # Path to our local Dockerfile
-# }
-
 resource "null_resource" "docker_build" {
   # https://stackoverflow.com/questions/68658353/push-docker-image-to-ecr-using-terraform
   # https://stackoverflow.com/questions/75131872/error-failed-to-solve-failed-commit-on-ref-unexpected-status-400-bad-reques
   provisioner "local-exec" {
-    command = "docker buildx build --platform linux/amd64 -t ${module.ecr.repository_url}:latest .. --push --provenance=false"
-
+    command = "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${module.ecr.repository_url} && docker buildx build --platform linux/amd64 -t ${module.ecr.repository_url}:latest .. --push --provenance=false"
   }
   triggers = {
     always_run = "${timestamp()}"
@@ -114,7 +103,7 @@ module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
   version = "~> 4.1.3"
 
-  cluster_name = local.example
+  cluster_name = local.namespace
 
   fargate_capacity_providers = {
     FARGATE = {
@@ -152,7 +141,7 @@ resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attach
 }
 
 resource "aws_cloudwatch_log_group" "this" {
-  name = "/ecs/${local.example}"
+  name = "/ecs/${local.namespace}"
 }
 
 resource "aws_ecs_task_definition" "this" {
@@ -162,7 +151,7 @@ resource "aws_ecs_task_definition" "this" {
     ],
     essential = true,
     image     = resource.docker_registry_image.this.name,
-    name      = local.container_name,
+    name      = local.namespace,
     logConfiguration : {
       logDriver = "awslogs",
       options = {
@@ -174,7 +163,7 @@ resource "aws_ecs_task_definition" "this" {
   }])
   cpu                      = 256
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  family                   = "family-of-${local.example}-tasks"
+  family                   = "family-of-${local.namespace}-tasks"
   memory                   = 512
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -185,7 +174,7 @@ resource "aws_ecs_service" "this" {
   cluster         = module.ecs.cluster_id
   desired_count   = 1
   launch_type     = "FARGATE"
-  name            = "${local.example}-service"
+  name            = "${local.namespace}-service"
   task_definition = resource.aws_ecs_task_definition.this.arn
 
   lifecycle {
@@ -196,4 +185,18 @@ resource "aws_ecs_service" "this" {
     security_groups = [module.vpc.default_security_group_id]
     subnets         = module.vpc.private_subnets
   }
+}
+
+# * S3
+resource "aws_s3_bucket" "this" {
+  bucket = "${local.namespace}-bucket"
+}
+
+# * SQS
+module "sqs" {
+  source  = "terraform-aws-modules/sqs/aws"
+
+  name = "${local.namespace}-queue"
+
+  create_dlq = true
 }

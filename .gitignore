@@ -87,3 +87,6 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+## Local setup
+queue.json
