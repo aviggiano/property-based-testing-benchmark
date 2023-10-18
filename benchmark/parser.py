@@ -10,14 +10,14 @@ def mk_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--tool",
         metavar="TOOL",
-        help="run benchmarks using one of the available tools: halmos, foundry, echidna, medusa",
-        required=True,
+        choices=["halmos", "foundry", "echidna", "medusa"],
+        help="run benchmarks using one of the available tools",
     )
     parser.add_argument(
         "--project", 
         metavar="PROJECT", 
-        help="test against a specific project: abdkmath-64x64, uniswap-v2",
-        required=True,
+        choices=["abdk-math-64x64", "uniswap-v2"],
+        help="test against a specific project",
     )
     parser.add_argument(
         "--test",
@@ -30,6 +30,21 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         metavar="MUTANT",
         default="",
         help="test against mutated code containing injected bugs (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--local",
+        action="store_true",
+        help="use local setup (in-memory queue, file system) instead of AWS components (SQS, S3)",
+    )
+    parser.add_argument(
+        "--exec",
+        action="store_true",
+        help="execute benchmark",
+    )
+    parser.add_argument(
+        "--send-message",
+        metavar="MESSAGE",
+        help="send message to queue",
     )
 
     return parser
