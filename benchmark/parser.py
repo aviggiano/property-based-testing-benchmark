@@ -46,5 +46,10 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         metavar="MESSAGE",
         help="send message to queue",
     )
+    parser.add_argument(
+        "--poll-messages",
+        action="store_true",
+        help="poll messages from queue",
+    )
 
     return parser

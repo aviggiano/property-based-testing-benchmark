@@ -25,7 +25,6 @@ def send_message(msg, local=False) -> str:
         response = sqs.send_message(
             QueueUrl=queue_url,
             DelaySeconds=10,
-            MessageAttributes={msg},
-            MessageBody=(msg)
+            MessageBody=msg
         )
     return response['MessageId']

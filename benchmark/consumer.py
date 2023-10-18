@@ -1,16 +1,12 @@
 from os import environ
 import time
 import json
-from aws_sqs_consumer import Consumer, Message
+import boto3
 
-def handle(message: Message):
-    print("Received message: ", message.Body)
+def handle_message(body: str):
+    print("Received message: ", body)
 
-class SimpleConsumer(Consumer):
-    def handle_message(self, message: Message):
-        return handle(message)
-
-def mk_consumer(local=False) -> SimpleConsumer:
+def poll_messages(local=False):
     if local:
         with open('queue.json', 'a+') as f:
             f.seek(0)
@@ -21,14 +17,24 @@ def mk_consumer(local=False) -> SimpleConsumer:
                 queue = json.loads(content)
                 while len(queue) > 0:
                     msg = queue.pop()
-                    dict = json.loads(msg)
-                    handle(Message(Body=dict['Body']))
+                    handle_message(msg)
                 f.truncate(0)
             f.close()
     else:
-        consumer = SimpleConsumer(
-            queue_url=environ['SQS_URL'],
-            polling_wait_time_ms=5
-        )
-        consumer.start()
-        return consumer
+        sqs = boto3.resource("sqs")
+        queue = sqs.get_queue_by_name(QueueName=environ['SQS_QUEUE_NAME'])
+
+        while True:
+            messages = queue.receive_messages(
+                MaxNumberOfMessages=1,
+                WaitTimeSeconds=1
+            )
+            for message in messages:
+                try:
+                    handle_message(message.body)
+                except Exception as e:
+                    print(f"Exception while processing message: {repr(e)}")
+                    continue
+
+                message.delete()
+

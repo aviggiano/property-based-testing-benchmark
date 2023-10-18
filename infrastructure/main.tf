@@ -147,7 +147,10 @@ resource "aws_cloudwatch_log_group" "this" {
 resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([{
     environment : [
-      { name = "NODE_ENV", value = "production" }
+      { name = "SQS_QUEUE_NAME", value = module.sqs.queue_name },
+      { name = "S3_BUCKET", value = resource.aws_s3_bucket.this.bucket },
+      { name = "AWS_ACCESS_KEY_ID", value = resource.aws_iam_access_key.this.id },
+      { name = "AWS_SECRET_ACCESS_KEY", value = resource.aws_iam_access_key.this.secret },
     ],
     essential = true,
     image     = resource.docker_registry_image.this.name,
@@ -194,9 +197,42 @@ resource "aws_s3_bucket" "this" {
 
 # * SQS
 module "sqs" {
-  source  = "terraform-aws-modules/sqs/aws"
+  source = "terraform-aws-modules/sqs/aws"
 
   name = "${local.namespace}-queue"
 
   create_dlq = true
+}
+
+# * IAM User
+resource "aws_iam_user" "this" {
+  name = "${local.namespace}-user"
+}
+
+resource "aws_iam_access_key" "this" {
+  user = aws_iam_user.this.name
+}
+
+data "aws_iam_policy_document" "this" {
+  statement {
+    effect    = "Allow"
+    actions   = ["sqs:*"]
+    resources = ["*"]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:*"]
+    resources = ["*"]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:*"]
+    resources = ["${resource.aws_s3_bucket.this.arn}/*"]
+  }
+}
+
+resource "aws_iam_user_policy" "this" {
+  name   = "${local.namespace}-user-policy"
+  user   = aws_iam_user.this.name
+  policy = data.aws_iam_policy_document.this.json
 }

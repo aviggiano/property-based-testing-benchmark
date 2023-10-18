@@ -67,4 +67,5 @@ RUN echo "Install halmos"
 RUN pip3 install git+https://github.com/a16z/halmos
 
 COPY . .
+RUN cd benchmark && pip3 install -r requirements.txt
 ENTRYPOINT python3 -m benchmark "$@"
