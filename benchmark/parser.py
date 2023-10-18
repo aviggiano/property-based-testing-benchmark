@@ -43,7 +43,7 @@ def mk_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--send-message",
-        metavar="MESSAGE",
+        metavar="MSG",
         help="send message to queue",
     )
     parser.add_argument(
