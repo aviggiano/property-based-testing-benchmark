@@ -1,5 +1,6 @@
 import os
 import argparse
+import json
 
 
 def mk_arg_parser() -> argparse.ArgumentParser:
@@ -34,6 +35,7 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         "--send-message",
         metavar="MSG",
         help="send message to queue",
+        type=json.loads,
     )
 
     ## consumer options

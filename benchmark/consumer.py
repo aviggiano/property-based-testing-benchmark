@@ -1,12 +1,45 @@
 from os import environ
+from .exec import cmd
+import logging
 import time
 import json
 import boto3
 
-def handle_message(body: str):
+def handle_message(body: str, local: bool):
     print("Received message: ", body)
+    data = json.loads(body)
+    if local:
+        cmd("python3 -m benchmark runner --tool {} --project {} --test {} --mutant {}".format(data["tool"], data["project"], data["test"], data["mutant"]))
+    else:
+        ecs = boto3.client('ecs')
+        response = ecs.run_task(
+            cluster=environ['ECS_CLUSTER_NAME'],
+            launchType='FARGATE',
+            taskDefinition=environ['ECS_TASK_DEFINITION'],
+            networkConfiguration={
+                'awsvpcConfiguration': {
+                    'subnets': environ['ECS_SUBNETS'].split(','),
+                    'securityGroups': environ['ECS_SECURITY_GROUP'].split(','),
+                    'assignPublicIp': 'DISABLED'
+                }
+            },
+            overrides={
+                'containerOverrides': [
+                    {
+                        'name': environ['ECS_CONTAINER_NAME'],
+                        'command': ["--", "runner", "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"]],
+                    }
+                ]
+            },
+            count=1,
+            platformVersion='LATEST',
+        )
+        logging.info(response.get('tasks', []).pop().get('taskArn', ''))
+
 
 def poll_messages(local=False):
+    # uncomment to start "runner" with fake queue
+    # return handle_message('{"tool": "foundry", "project": "abdk-math-64x64", "test": "test_", "mutant": ""}', False)
     if local:
         while True:
             with open('queue.json', 'a+') as f:
@@ -18,7 +51,7 @@ def poll_messages(local=False):
                     queue = json.loads(content)
                     while len(queue) > 0:
                         msg = queue.pop()
-                        handle_message(msg)
+                        handle_message(msg, local)
                     f.truncate(0)
                 f.close()
             time.sleep(1)
@@ -33,7 +66,7 @@ def poll_messages(local=False):
             )
             for message in messages:
                 try:
-                    handle_message(message.body)
+                    handle_message(message.body, local)
                 except Exception as e:
                     print(f"Exception while processing message: {repr(e)}")
                     continue

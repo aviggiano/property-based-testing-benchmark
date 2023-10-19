@@ -3,7 +3,7 @@
 import logging
 from .log import mk_log
 from .parser import mk_arg_parser
-from .tools import exec_benchmark
+from .runner import run_benchmark
 from .consumer import poll_messages
 from .producer import send_message
 
@@ -20,7 +20,7 @@ def main():
         poll_messages(args.local)
 
     if args.cmd == 'runner':
-        exec_benchmark(args.tool, args.project, args.test, args.mutant)
+        run_benchmark(args.tool, args.project, args.test, args.mutant)
 
 
 if __name__ == "__main__":

@@ -1,21 +1,10 @@
 import tempfile
 import os
-from subprocess import PIPE, Popen
 import logging
+from .exec import cmd
 from shlex import quote, split
 
-def cmd(cmd: str):
-    logging.info(cmd)
-    with Popen(cmd, stdout=PIPE, bufsize=1, universal_newlines=True, shell=True) as p:
-        for line in p.stdout:
-            print(line, end='') # process line here
-
-    if p.returncode != 0:
-        raise CalledProcessError(p.returncode, p.args)
-
-
-
-def exec_benchmark(tool: str, project: str, test: str, mutant: str):
+def run_benchmark(tool: str, project: str, test: str, mutant: str):
   mutant_cmd = 'true'
   if mutant != '':
     mutant_cmd = 'git apply mutants/{}.patch'.format(quote(mutant))

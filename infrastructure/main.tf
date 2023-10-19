@@ -149,13 +149,18 @@ resource "aws_ecs_task_definition" "this" {
     environment : [
       { name = "SQS_QUEUE_NAME", value = module.sqs.queue_name },
       { name = "S3_BUCKET", value = resource.aws_s3_bucket.this.bucket },
+      { name = "ECS_CLUSTER_NAME", value = module.ecs.cluster_name },
+      { name = "ECS_TASK_DEFINITION", value = "${local.namespace}-task-definition" },
+      { name = "ECS_SECURITY_GROUP", value = module.vpc.default_security_group_id },
+      { name = "ECS_SUBNETS", value = join(",", module.vpc.private_subnets) },
+      { name = "ECS_CONTAINER_NAME", value = local.namespace },
       { name = "AWS_ACCESS_KEY_ID", value = resource.aws_iam_access_key.this.id },
       { name = "AWS_SECRET_ACCESS_KEY", value = resource.aws_iam_access_key.this.secret },
     ],
     essential = true,
     image     = resource.docker_registry_image.this.name,
     name      = local.namespace,
-    command   = ["python3", "-m", "benchmark", "consumer"]
+    command   = ["--", "consumer"]
     logConfiguration : {
       logDriver = "awslogs",
       options = {
@@ -165,18 +170,17 @@ resource "aws_ecs_task_definition" "this" {
       }
     }
   }])
-  cpu                      = 256
+  cpu                      = 8192
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  family                   = "family-of-${local.namespace}-tasks"
-  memory                   = 512
+  family                   = "${local.namespace}-task-definition"
+  memory                   = 16384
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 }
 
-
 resource "aws_ecs_service" "this" {
   cluster         = module.ecs.cluster_id
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
   name            = "${local.namespace}-service"
   task_definition = resource.aws_ecs_task_definition.this.arn
@@ -223,6 +227,11 @@ data "aws_iam_policy_document" "this" {
   statement {
     effect    = "Allow"
     actions   = ["s3:*"]
+    resources = ["*"]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = ["ecs:*"]
     resources = ["*"]
   }
   statement {

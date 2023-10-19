@@ -9,19 +9,13 @@ Property-based testing benchmark
 docker build . -t benchmark
 ```
 
-## Run local benchmark
-
-```
-docker run -t benchmark -- --tool foundry --project abdk-math-64x64
-```
-
-## Run cloud benchmark
-
-_WIP_
+## Run benchmark
 
 ```
 cd infrastructure
 terraform init
 terraform apply
-curl -XPOST --data '{"tool":"foundry","project":"uniswap-v2"} https://example.com/
+export $(terraform output | sed 's/\s*=\s*/=/g' | xargs)
+cd ..
+python3 -m benchmark producer --send-message '{"tool":"foundry","project":"abdk-math-64x64","test":"test_","mutant":""}'
 ```

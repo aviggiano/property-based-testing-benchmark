@@ -1,8 +1,11 @@
+import logging
 import boto3
 import json
 from os import environ
 
-def send_message(msg, local=False) -> str:
+def send_message(obj: json, local=False) -> str:
+    msg = json.dumps(obj)
+    logging.info(msg)
     if local:
         with open('queue.json', 'a+') as f:
             f.seek(0)
@@ -18,13 +21,16 @@ def send_message(msg, local=False) -> str:
             f.seek(0)
             f.write(json.dumps(queue))
             f.close()
-            return str(len(queue))
+            message_id = str(len(queue))
     else:
         sqs = boto3.client('sqs', region_name='us-east-1')
-        queue_url = environ['SQS_URL']
+        response = sqs.get_queue_url(QueueName=environ['SQS_QUEUE_NAME'])
+        queue_url = response['QueueUrl']
         response = sqs.send_message(
             QueueUrl=queue_url,
             DelaySeconds=10,
             MessageBody=msg
         )
-    return response['MessageId']
+        message_id = response['MessageId']
+    logging.info(message_id)
+    return message_id
