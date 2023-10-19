@@ -8,18 +8,20 @@ def handle_message(body: str):
 
 def poll_messages(local=False):
     if local:
-        with open('queue.json', 'a+') as f:
-            f.seek(0)
-            f.close()
-        with open('queue.json', 'r+') as f:
-            content = f.read()
-            if content != '':
-                queue = json.loads(content)
-                while len(queue) > 0:
-                    msg = queue.pop()
-                    handle_message(msg)
-                f.truncate(0)
-            f.close()
+        while True:
+            with open('queue.json', 'a+') as f:
+                f.seek(0)
+                f.close()
+            with open('queue.json', 'r+') as f:
+                content = f.read()
+                if content != '':
+                    queue = json.loads(content)
+                    while len(queue) > 0:
+                        msg = queue.pop()
+                        handle_message(msg)
+                    f.truncate(0)
+                f.close()
+            time.sleep(1)
     else:
         sqs = boto3.resource("sqs")
         queue = sqs.get_queue_by_name(QueueName=environ['SQS_QUEUE_NAME'])

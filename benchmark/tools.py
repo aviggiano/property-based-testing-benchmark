@@ -15,7 +15,7 @@ def cmd(cmd: str):
 
 
 
-def exec(tool: str, project: str, test: str, mutant: str):
+def exec_benchmark(tool: str, project: str, test: str, mutant: str):
   mutant_cmd = 'true'
   if mutant != '':
     mutant_cmd = 'git apply mutants/{}.patch'.format(quote(mutant))

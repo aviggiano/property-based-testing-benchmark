@@ -155,7 +155,7 @@ resource "aws_ecs_task_definition" "this" {
     essential = true,
     image     = resource.docker_registry_image.this.name,
     name      = local.namespace,
-    command   = ["python3", "-m", "benchmark", "--help"]
+    command   = ["python3", "-m", "benchmark", "consumer"]
     logConfiguration : {
       logDriver = "awslogs",
       options = {
