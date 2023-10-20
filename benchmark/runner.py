@@ -20,7 +20,6 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, local=False):
     tool_cmd += "forge test --match-test {}".format(quote(test))
   else:
     raise ValueError('Unknown tool: {}'.format(tool))
-  tool_cmd += ' >/dev/null'
   
   os.chdir('projects/{}'.format(quote(project)))
   cmd('forge clean')

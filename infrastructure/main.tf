@@ -206,29 +206,12 @@ resource "aws_ecs_task_definition" "runner" {
   requires_compatibilities = ["FARGATE"]
 }
 
-resource "aws_ecs_service" "consumer" {
+resource "aws_ecs_service" "this" {
   cluster         = module.ecs.cluster_id
   desired_count   = 1
   launch_type     = "FARGATE"
-  name            = "${local.namespace}-consumer-service"
+  name            = "${local.namespace}-service"
   task_definition = resource.aws_ecs_task_definition.consumer.arn
-
-  lifecycle {
-    ignore_changes = [desired_count] # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
-  }
-
-  network_configuration {
-    security_groups = [module.vpc.default_security_group_id]
-    subnets         = module.vpc.private_subnets
-  }
-}
-
-resource "aws_ecs_service" "runner" {
-  cluster         = module.ecs.cluster_id
-  desired_count   = 0
-  launch_type     = "FARGATE"
-  name            = "${local.namespace}-runner-service"
-  task_definition = resource.aws_ecs_task_definition.runner.arn
 
   lifecycle {
     ignore_changes = [desired_count] # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
