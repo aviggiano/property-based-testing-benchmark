@@ -144,13 +144,13 @@ resource "aws_cloudwatch_log_group" "this" {
   name = "/ecs/${local.namespace}"
 }
 
-resource "aws_ecs_task_definition" "this" {
+
+resource "aws_ecs_task_definition" "consumer" {
   container_definitions = jsonencode([{
     environment : [
       { name = "SQS_QUEUE_NAME", value = module.sqs.queue_name },
-      { name = "S3_BUCKET", value = resource.aws_s3_bucket.this.bucket },
       { name = "ECS_CLUSTER_NAME", value = module.ecs.cluster_name },
-      { name = "ECS_TASK_DEFINITION", value = "${local.namespace}-task-definition" },
+      { name = "ECS_RUNNER_TASK_DEFINITION", value = resource.aws_ecs_task_definition.runner.family },
       { name = "ECS_SECURITY_GROUP", value = module.vpc.default_security_group_id },
       { name = "ECS_SUBNETS", value = join(",", module.vpc.private_subnets) },
       { name = "ECS_CONTAINER_NAME", value = local.namespace },
@@ -170,20 +170,65 @@ resource "aws_ecs_task_definition" "this" {
       }
     }
   }])
+  cpu                      = 256
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  family                   = "${local.namespace}-consumer"
+  memory                   = 512
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+}
+
+resource "aws_ecs_task_definition" "runner" {
+  container_definitions = jsonencode([{
+    environment : [
+      { name = "S3_BUCKET", value = resource.aws_s3_bucket.this.bucket },
+      { name = "AWS_ACCESS_KEY_ID", value = resource.aws_iam_access_key.this.id },
+      { name = "AWS_SECRET_ACCESS_KEY", value = resource.aws_iam_access_key.this.secret },
+    ],
+    essential = true,
+    image     = resource.docker_registry_image.this.name,
+    name      = local.namespace,
+    command   = ["--", "runner", "--help"]
+    logConfiguration : {
+      logDriver = "awslogs",
+      options = {
+        "awslogs-group"         = aws_cloudwatch_log_group.this.name,
+        "awslogs-region"        = data.aws_region.this.name,
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
+  }])
   cpu                      = 8192
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  family                   = "${local.namespace}-task-definition"
+  family                   = "${local.namespace}-runner"
   memory                   = 16384
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 }
 
-resource "aws_ecs_service" "this" {
+resource "aws_ecs_service" "consumer" {
+  cluster         = module.ecs.cluster_id
+  desired_count   = 1
+  launch_type     = "FARGATE"
+  name            = "${local.namespace}-consumer-service"
+  task_definition = resource.aws_ecs_task_definition.consumer.arn
+
+  lifecycle {
+    ignore_changes = [desired_count] # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
+  }
+
+  network_configuration {
+    security_groups = [module.vpc.default_security_group_id]
+    subnets         = module.vpc.private_subnets
+  }
+}
+
+resource "aws_ecs_service" "runner" {
   cluster         = module.ecs.cluster_id
   desired_count   = 0
   launch_type     = "FARGATE"
-  name            = "${local.namespace}-service"
-  task_definition = resource.aws_ecs_task_definition.this.arn
+  name            = "${local.namespace}-runner-service"
+  task_definition = resource.aws_ecs_task_definition.runner.arn
 
   lifecycle {
     ignore_changes = [desired_count] # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
@@ -232,6 +277,11 @@ data "aws_iam_policy_document" "this" {
   statement {
     effect    = "Allow"
     actions   = ["ecs:*"]
+    resources = ["*"]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:*"]
     resources = ["*"]
   }
   statement {

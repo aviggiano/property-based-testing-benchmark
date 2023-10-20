@@ -10,8 +10,8 @@ output "ECS_CLUSTER_NAME" {
   value = module.ecs.cluster_name
 }
 
-output "ECS_TASK_DEFINITION" {
-  value = resource.aws_ecs_task_definition.this.family
+output "ECS_RUNNER_TASK_DEFINITION" {
+  value = resource.aws_ecs_task_definition.runner.family
 }
 
 output "ECS_CONTAINER_NAME" {

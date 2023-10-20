@@ -38,9 +38,20 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         type=json.loads,
     )
 
+    producer.add_argument(
+        "--full-benchmark",
+        action="store_true",
+        help="start full benchmark against a specific project",
+    )
+
     ## consumer options
 
-    # N/A
+    consumer.add_argument(
+        "--start-runner",
+        metavar="MSG",
+        help="hardcoded message from queue",
+        type=json.loads,
+    )
 
     ## runner options
 

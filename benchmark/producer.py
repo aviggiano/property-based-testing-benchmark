@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import boto3
 import json
@@ -34,3 +35,21 @@ def send_message(obj: json, local=False) -> str:
         message_id = response['MessageId']
     logging.info(message_id)
     return message_id
+
+def full_benchmark(local=False) -> List[str]:
+    tools = ['halmos', 'foundry']
+    projects = ['abdk-math-64x64']
+    mutants = ['']
+    ans = []
+    for tool in tools:
+        for project in projects:
+            for mutant in mutants:
+                obj = {
+                    "tool": tool,
+                    "project": project,
+                    "test": "test_",
+                    "mutant": mutant
+                }
+                message_id = send_message(obj, local)
+                ans.append(message_id)
+    return ans

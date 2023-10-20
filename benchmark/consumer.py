@@ -15,7 +15,7 @@ def handle_message(body: str, local: bool):
         response = ecs.run_task(
             cluster=environ['ECS_CLUSTER_NAME'],
             launchType='FARGATE',
-            taskDefinition=environ['ECS_TASK_DEFINITION'],
+            taskDefinition=environ['ECS_RUNNER_TASK_DEFINITION'],
             networkConfiguration={
                 'awsvpcConfiguration': {
                     'subnets': environ['ECS_SUBNETS'].split(','),
@@ -37,9 +37,10 @@ def handle_message(body: str, local: bool):
         logging.info(response.get('tasks', []).pop().get('taskArn', ''))
 
 
-def poll_messages(local=False):
-    # uncomment to start "runner" with fake queue
-    # return handle_message('{"tool": "foundry", "project": "abdk-math-64x64", "test": "test_", "mutant": ""}', False)
+def poll_messages(start_runner: json, local=False):
+    if start_runner is not None:
+        return handle_message(json.dumps(start_runner), local)
+
     if local:
         while True:
             with open('queue.json', 'a+') as f:
