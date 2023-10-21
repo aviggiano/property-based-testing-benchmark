@@ -71,13 +71,19 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         "--test",
         metavar="TEST",
         default="test_",
-        help="run tests matching the given prefix only (default: %(default)s)",
+        help="run tests matching the given prefix only (default: '%(default)s')",
     )
     runner.add_argument(
         "--mutant",
         metavar="MUTANT",
         default="",
-        help="test against mutated code containing injected bugs (default: %(default)s)",
+        help="test against mutated code containing injected bugs (default: '%(default)s')",
+    )
+    runner.add_argument(
+        "--timeout",
+        metavar="TIMEOUT",
+        default=3600,
+        help="run tests for a specific timeout (default: %(default)s)",
     )
 
     return parser

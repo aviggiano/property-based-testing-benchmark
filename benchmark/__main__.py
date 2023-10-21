@@ -23,7 +23,7 @@ def main():
         poll_messages(args.start_runner, args.local)
 
     if args.cmd == 'runner':
-        run_benchmark(args.tool, args.project, args.test, args.mutant, args.local)
+        run_benchmark(args.tool, args.project, args.test, args.mutant, args.timeout, args.local)
 
 
 if __name__ == "__main__":

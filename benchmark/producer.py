@@ -48,7 +48,8 @@ def full_benchmark(local=False) -> List[str]:
                     "tool": tool,
                     "project": project,
                     "test": "test_",
-                    "mutant": mutant
+                    "timeout": 3600,
+                    "mutant": mutant,
                 }
                 message_id = send_message(obj, local)
                 ans.append(message_id)
