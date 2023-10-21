@@ -23,7 +23,7 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
 
     // x / -y == -(x / y)
     function test_div_negative_divisor(int128 x, int128 y) public {
-        vm.assume(y < ZERO_FP);
+        y = int128(between(y, type(int128).min, ZERO_FP - 1));
 
         try abdk.div(x, y) returns (int128 x_y) {
             try abdk.neg(y) returns (int128 neg_y) {
@@ -36,7 +36,7 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
 
     // 0 / x = 0
     function test_div_division_num_zero(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         int128 div_0 = abdk.div(ZERO_FP, x);
 
@@ -45,7 +45,7 @@ contract ABDKMath64x64DivProperties is ABDKMath64x64Setup {
 
     // x / y >= x <=> |y| <= 1; x / y < x <=> |y| > 1
     function test_div_values(int128 x, int128 y) public {
-        vm.assume(y != ZERO_FP);
+        precondition(y != ZERO_FP);
 
         try abdk.div(x, y) returns (int128 x_y) {
             try abdk.abs(x_y) returns (int128 abs_x_y) {

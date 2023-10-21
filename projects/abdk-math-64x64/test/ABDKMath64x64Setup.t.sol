@@ -4,9 +4,10 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "@abdk/ABDKMath64x64.sol";
 import "./ABDKMath64x64Wrapper.sol";
+import "./FoundryAsserts.sol";
 
 // https://github.com/crytic/properties/blob/d573bf661990f11cc033e2b5b749deec962b5243/contracts/Math/ABDKMath64x64/ABDKMath64x64PropertyTests.sol
-contract ABDKMath64x64Setup is Test {
+contract ABDKMath64x64Setup is Test, FoundryAsserts {
     ABDKMath64x64Wrapper internal abdk;
 
     int128 internal ZERO_FP = ABDKMath64x64.fromInt(0);

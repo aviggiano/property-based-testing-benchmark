@@ -8,7 +8,7 @@ contract ABDKMath64x64LnProperties is ABDKMath64x64Setup {
     function test_ln_distributive_mul(int128 x, int128 y) public {
         // Ensure we have enough significant digits for the result to be meaningful
         try abdk.significant_bits_after_mul(x, y) returns (uint256 s__x__y) {
-            vm.assume(s__x__y > REQUIRED_SIGNIFICANT_BITS);
+            precondition(s__x__y > REQUIRED_SIGNIFICANT_BITS);
             try abdk.ln(x) returns (int128 ln_x) {
                 try abdk.ln(y) returns (int128 ln_y) {
                     try abdk.mul(x, y) returns (int128 xy) {
@@ -75,7 +75,7 @@ contract ABDKMath64x64LnProperties is ABDKMath64x64Setup {
 
     // ln(MIN) reverts
     function test_ln_negative(int128 x) public {
-        vm.assume(x < ZERO_FP);
+        precondition(x < ZERO_FP);
 
         try abdk.ln(x) {
             // Unexpected, should revert

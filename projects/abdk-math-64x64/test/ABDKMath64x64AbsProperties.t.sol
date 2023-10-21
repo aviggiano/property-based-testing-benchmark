@@ -35,7 +35,7 @@ contract ABDKMath64x64AbsProperties is ABDKMath64x64Setup {
                                 )
                             returns (bool lost) {
                                 // Failure if all significant digits are lost
-                                vm.assume(!lost);
+                                precondition(!lost);
 
                                 // Assume a tolerance of two bits of precision
                                 assertTrue(

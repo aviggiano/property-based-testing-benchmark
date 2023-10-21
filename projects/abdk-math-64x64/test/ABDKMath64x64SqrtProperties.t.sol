@@ -6,7 +6,7 @@ import "./ABDKMath64x64Setup.t.sol";
 contract ABDKMath64x64SqrtProperties is ABDKMath64x64Setup {
     // sqrt(x) * sqrt(x) == x
     function test_sqrt_inverse_mul(int128 x) public {
-        vm.assume(x >= ZERO_FP);
+        x = int128(between(x, ZERO_FP, type(int128).max));
 
         try abdk.sqrt(x) returns (int128 sqrt_x) {
             try abdk.mul(sqrt_x, sqrt_x) returns (int128 sqrt_x_mul_sqrt_x) {
@@ -30,7 +30,7 @@ contract ABDKMath64x64SqrtProperties is ABDKMath64x64Setup {
 
     // sqrt(x) ** 2 == x
     function test_sqrt_inverse_pow(int128 x) public {
-        vm.assume(x >= ZERO_FP);
+        x = int128(between(x, ZERO_FP, type(int128).max));
 
         try abdk.sqrt(x) returns (int128 sqrt_x) {
             try abdk.pow(sqrt_x, 2) returns (int128 sqrt_x_pow_2) {
@@ -54,18 +54,19 @@ contract ABDKMath64x64SqrtProperties is ABDKMath64x64Setup {
 
     // sqrt(x) * sqrt(y) == sqrt(x * y)
     function test_sqrt_distributive(int128 x, int128 y) public {
-        vm.assume(x >= ZERO_FP && y >= ZERO_FP);
+        x = int128(between(x, ZERO_FP, type(int128).max));
+        y = int128(between(y, ZERO_FP, type(int128).max));
 
         // Ensure we have enough significant digits for the result to be meaningful
         try abdk.significant_bits_after_mul(x, y) returns (uint256 s__x__y) {
-            vm.assume(s__x__y > REQUIRED_SIGNIFICANT_BITS);
+            precondition(s__x__y > REQUIRED_SIGNIFICANT_BITS);
 
             try abdk.sqrt(x) returns (int128 sqrt_x) {
                 try abdk.sqrt(y) returns (int128 sqrt_y) {
                     try
                         abdk.significant_bits_after_mul(sqrt_x, sqrt_y)
                     returns (uint256 s__sqrt_x__sqrt_y) {
-                        vm.assume(
+                        precondition(
                             s__sqrt_x__sqrt_y > REQUIRED_SIGNIFICANT_BITS
                         );
 
@@ -121,7 +122,7 @@ contract ABDKMath64x64SqrtProperties is ABDKMath64x64Setup {
 
     // sqrt(x) reverts if x < 0
     function test_sqrt_negative(int128 x) public {
-        vm.assume(x < ZERO_FP);
+        x = int128(between(x, type(int128).min, ZERO_FP - 1));
 
         try abdk.sqrt(x) {
             // Unexpected, should revert

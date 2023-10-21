@@ -6,7 +6,7 @@ import "./ABDKMath64x64Setup.t.sol";
 contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
     // 1 / (1 / x) == x
     function test_inv_double_inverse(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             try abdk.inv(inv_x) returns (int128 double_inv_x) {
@@ -26,7 +26,7 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
 
     // 1 / x == 1 / x
     function test_inv_division(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             try abdk.div(ONE_FP, x) returns (int128 div_1_x) {
@@ -37,7 +37,7 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
 
     // x / y == 1 / (y / x)
     function test_inv_division_noncommutativity(int128 x, int128 y) public {
-        vm.assume(x != ZERO_FP && y != ZERO_FP);
+        precondition(x != ZERO_FP && y != ZERO_FP);
 
         try abdk.div(x, y) returns (int128 x_y) {
             try abdk.div(y, x) returns (int128 y_x) {
@@ -50,10 +50,10 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
                                 try
                                     abdk.significant_bits_after_mul(y, inv_x)
                                 returns (uint256 s__y__inv_x) {
-                                    vm.assume(
+                                    precondition(
                                         s__x__inv_y > REQUIRED_SIGNIFICANT_BITS
                                     );
-                                    vm.assume(
+                                    precondition(
                                         s__y__inv_x > REQUIRED_SIGNIFICANT_BITS
                                     );
                                     assertTrue(
@@ -74,7 +74,7 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
 
     // 1/(x * y) == 1/x * 1/y
     function test_inv_multiplication(int128 x, int128 y) public {
-        vm.assume(x != ZERO_FP && y != ZERO_FP);
+        precondition(x != ZERO_FP && y != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             try abdk.inv(y) returns (int128 inv_y) {
@@ -87,11 +87,11 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
                                 try
                                     abdk.significant_bits_after_mul(x, y)
                                 returns (uint256 s__x__y) {
-                                    vm.assume(
+                                    precondition(
                                         s__inv_x__inv_y >
                                             REQUIRED_SIGNIFICANT_BITS
                                     );
-                                    vm.assume(
+                                    precondition(
                                         s__x__y > REQUIRED_SIGNIFICANT_BITS
                                     );
 
@@ -127,14 +127,14 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
 
     // (1 / x) * x == 1
     function test_inv_identity(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             try abdk.mul(inv_x, x) returns (int128 identity) {
                 try abdk.significant_bits_after_mul(inv_x, x) returns (
                     uint256 s__inv_x__x
                 ) {
-                    vm.assume(s__inv_x__x > REQUIRED_SIGNIFICANT_BITS);
+                    precondition(s__inv_x__x > REQUIRED_SIGNIFICANT_BITS);
 
                     // They should agree with a tolerance of one tenth of a percent
                     assertTrue(
@@ -151,7 +151,7 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
 
     // | 1 / x | <= 1 <=> |x| >= 1; | 1 / x | > 1 <=> |x| < 1
     function test_inv_values(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             try abdk.abs(inv_x) returns (int128 abs_inv_x) {
@@ -169,7 +169,7 @@ contract ABDKMath64x64InvProperties is ABDKMath64x64Setup {
     // Test that the result has the same sign as the argument
     // 1 / x > 0 <=> x > 0; 1 / x < 0 <=> x < 0
     function test_inv_sign(int128 x) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.inv(x) returns (int128 inv_x) {
             if (x > ZERO_FP) {

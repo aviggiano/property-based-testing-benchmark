@@ -13,7 +13,7 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
 
     // 0 ** x == 0 if x > 0
     function test_pow_zero_base(uint256 x) public {
-        vm.assume(x != 0);
+        precondition(x != 0);
 
         try abdk.pow(ZERO_FP, x) returns (int128 zero_pow_x) {
             assertEq(zero_pow_x, ZERO_FP);
@@ -36,12 +36,11 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
 
     // x ** a * x ** b == x ** (a + b)
     function test_pow_product_same_base(int128 x, uint256 a, uint256 b) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
+        a = between(a, 0, type(uint256).max - b);
 
         try abdk.pow(x, a) returns (int128 x_a) {
             try abdk.pow(x, b) returns (int128 x_b) {
-                vm.assume(a <= type(uint256).max - b);
-
                 try abdk.pow(x, a + b) returns (int128 x_a_b) {
                     try abdk.mul(x_a, x_b) returns (int128 x_a_mul_x_b) {
                         try
@@ -61,14 +60,13 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
         uint256 a,
         uint256 b
     ) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
+        precondition(
+            (a == 0 || b == 0) ||
+                (a <= type(uint256).max / b && b <= type(uint256).max / a)
+        );
         try abdk.pow(x, a) returns (int128 x_a) {
             try abdk.pow(x_a, b) returns (int128 x_a_b) {
-                vm.assume(
-                    (a == 0 || b == 0) ||
-                        (a <= type(uint256).max / b &&
-                            b <= type(uint256).max / a)
-                );
                 try abdk.pow(x, a * b) returns (int128 x_ab) {
                     try abdk.equal_within_precision(x_a_b, x_ab, 2) returns (
                         bool equal
@@ -82,8 +80,8 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
 
     // (x * y) ** a == x ** a * y ** a
     function test_pow_distributive(int128 x, int128 y, uint256 a) public {
-        vm.assume(x != ZERO_FP && y != ZERO_FP);
-        vm.assume(a > 2 ** 32); // to avoid massive loss of precision
+        precondition(x != ZERO_FP && y != ZERO_FP);
+        a = between(a, 2 ** 32 + 1, type(uint256).max); // to avoid massive loss of precision
 
         try abdk.pow(x, a) returns (int128 x_a) {
             try abdk.pow(y, a) returns (int128 y_a) {
@@ -109,7 +107,7 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
     // | x ** a | >= 1 if | x | >= 1
     // | x ** a | <= 1 if | x | <= 1
     function test_pow_values(int128 x, uint256 a) public {
-        vm.assume(x != ZERO_FP);
+        precondition(x != ZERO_FP);
 
         try abdk.pow(x, a) returns (int128 x_a) {
             try abdk.abs(x) returns (int128 abs_x) {
@@ -130,12 +128,12 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
     // x ** a > 0 if | a | % 2 == 0
     // x ** a < 0 if | a | % 2 != 0
     function test_pow_sign(int128 x, uint256 a) public {
-        vm.assume(x != ZERO_FP && a != 0);
+        precondition(x != ZERO_FP && a != 0);
 
         try abdk.pow(x, a) returns (int128 x_a) {
             // This prevents the case where a small negative number gets
             // rounded down to zero and thus changes sign
-            vm.assume(x_a != ZERO_FP);
+            precondition(x_a != ZERO_FP);
             try abdk.abs(x_a) returns (int128 abs_x_a) {
                 // If the exponent is even
                 if (a % 2 == 0) {
@@ -154,7 +152,7 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
 
     // MAX ** a reverts
     function test_pow_maximum_base(uint256 a) public {
-        vm.assume(a > 1);
+        a = between(a, 2, type(uint256).max);
 
         try abdk.pow(MAX_64x64, a) {
             // Unexpected, should revert because of overflow
@@ -166,8 +164,9 @@ contract ABDKMath64x64PowProperties is ABDKMath64x64Setup {
 
     // abs(base) < 1 ** high_exponent == 0
     function test_pow_high_exponent(int128 x, uint256 a) public {
+        a = between(a, 2 ** 64 + 1, type(uint256).max);
         try abdk.abs(x) returns (int128 abs_x) {
-            vm.assume(abs_x < ONE_FP && a > 2 ** 64);
+            precondition(abs_x < ONE_FP);
 
             int128 result = abdk.pow(x, a);
 

@@ -29,7 +29,7 @@ contract ABDKMath64x64ExpProperties is ABDKMath64x64Setup {
 
     // exp(-x) == inv( exp(x) )
     function test_exp_negative_exponent(int128 x) public {
-        vm.assume(x < ZERO_FP && x != MIN_64x64);
+        x = int128(between(x, MIN_64x64 + 1, ZERO_FP - 1));
 
         try abdk.exp(x) returns (int128 exp_x) {
             try abdk.exp(-x) returns (int128 exp_minus_x) {

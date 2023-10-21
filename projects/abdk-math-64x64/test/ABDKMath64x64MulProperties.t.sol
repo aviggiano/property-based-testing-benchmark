@@ -16,23 +16,23 @@ contract ABDKMath64x64MulProperties is ABDKMath64x64Setup {
     // (x * y) * z == x * (y * z)
     function test_mul_associative(int128 x, int128 y, int128 z) public {
         try abdk.significant_bits_after_mul(x, y) returns (uint256 s__x__y) {
-            vm.assume(s__x__y > REQUIRED_SIGNIFICANT_BITS);
+            precondition(s__x__y > REQUIRED_SIGNIFICANT_BITS);
             try abdk.significant_bits_after_mul(y, z) returns (
                 uint256 s__y__z
             ) {
-                vm.assume(s__y__z > REQUIRED_SIGNIFICANT_BITS);
+                precondition(s__y__z > REQUIRED_SIGNIFICANT_BITS);
 
                 try abdk.mul(x, y) returns (int128 x_y) {
                     try abdk.significant_bits_after_mul(x_y, z) returns (
                         uint256 s__x_y__z
                     ) {
-                        vm.assume(s__x_y__z > REQUIRED_SIGNIFICANT_BITS);
+                        precondition(s__x_y__z > REQUIRED_SIGNIFICANT_BITS);
 
                         try abdk.mul(y, z) returns (int128 y_z) {
                             try
                                 abdk.significant_bits_after_mul(x, y_z)
                             returns (uint256 s__x__y_z) {
-                                vm.assume(
+                                precondition(
                                     s__x__y_z > REQUIRED_SIGNIFICANT_BITS
                                 );
 
@@ -61,17 +61,17 @@ contract ABDKMath64x64MulProperties is ABDKMath64x64Setup {
             try abdk.significant_bits_after_mul(x, y_plus_z) returns (
                 uint256 s__x__y_plus_z
             ) {
-                vm.assume(s__x__y_plus_z > REQUIRED_SIGNIFICANT_BITS);
+                precondition(s__x__y_plus_z > REQUIRED_SIGNIFICANT_BITS);
                 try abdk.mul(x, y_plus_z) returns (int128 x_times_y_plus_z) {
                     try abdk.significant_bits_after_mul(x, y) returns (
                         uint256 s__x__y
                     ) {
-                        vm.assume(s__x__y > REQUIRED_SIGNIFICANT_BITS);
+                        precondition(s__x__y > REQUIRED_SIGNIFICANT_BITS);
                         try abdk.mul(x, y) returns (int128 x_times_y) {
                             try abdk.significant_bits_after_mul(x, z) returns (
                                 uint256 s__x__z
                             ) {
-                                vm.assume(s__x__z > REQUIRED_SIGNIFICANT_BITS);
+                                precondition(s__x__z > REQUIRED_SIGNIFICANT_BITS);
 
                                 try abdk.mul(x, z) returns (int128 x_times_z) {
                                     assertTrue(
@@ -102,13 +102,13 @@ contract ABDKMath64x64MulProperties is ABDKMath64x64Setup {
 
     // x * y >= x <=> |y| >= 1; x * y < x <=> |y| < 1
     function test_mul_values(int128 x, int128 y) public {
-        vm.assume(x != ZERO_FP && y != ZERO_FP);
+        precondition(x != ZERO_FP && y != ZERO_FP);
 
         try abdk.mul(x, y) returns (int128 x_y) {
             try abdk.significant_digits_lost_in_mul(x, y) returns (
                 bool s__x__y
             ) {
-                vm.assume(!s__x__y);
+                precondition(!s__x__y);
 
                 if (x >= ZERO_FP) {
                     if (y >= ONE_FP) {
