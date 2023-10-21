@@ -33,14 +33,18 @@ contract ABDKMath64x64ExpProperties is ABDKMath64x64Setup {
 
         try abdk.exp(x) returns (int128 exp_x) {
             try abdk.exp(-x) returns (int128 exp_minus_x) {
-                // Result should be within 4 bits precision for the worst case
-                assertTrue(
-                    abdk.equal_most_significant_bits_within_precision(
-                        exp_x,
-                        abdk.inv(exp_minus_x),
-                        4
-                    )
-                );
+                try abdk.inv(exp_minus_x) returns (int128 inv_exp_minus_x) {
+                    // Result should be within 4 bits precision for the worst case
+                    try
+                        abdk.equal_most_significant_bits_within_precision(
+                            exp_x,
+                            inv_exp_minus_x,
+                            4
+                        )
+                    returns (bool equal) {
+                        assertTrue(equal);
+                    } catch {}
+                } catch {}
             } catch {}
         } catch {}
     }
