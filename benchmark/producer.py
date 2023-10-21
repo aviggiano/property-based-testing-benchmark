@@ -39,7 +39,7 @@ def send_message(obj: json, local=False) -> str:
 
 
 def full_benchmark(local=False) -> List[str]:
-    tools = ['halmos', 'foundry']
+    tools = ['halmos', 'foundry', 'echidna', 'medusa']
     projects = ['abdk-math-64x64']
     mutants = ['']
     ans = []

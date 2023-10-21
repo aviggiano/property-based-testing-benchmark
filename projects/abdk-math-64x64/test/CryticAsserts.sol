@@ -1,15 +1,17 @@
 pragma solidity ^0.8.0;
 
-import "@crytic/properties/contracts/util/PropertiesHelper.sol";
 import "./Asserts.sol";
 
-contract CryticAsserts is PropertiesAsserts, Asserts {
+contract CryticAsserts is Asserts {
+    event Log(string);
+
     function gt(
         uint256 a,
         uint256 b,
         string memory reason
     ) internal virtual override {
-        assertGt(a, b, reason);
+        emit Log(reason);
+        assert(a > b);
     }
 
     function gte(
@@ -17,7 +19,8 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         uint256 b,
         string memory reason
     ) internal virtual override {
-        assertGte(a, b, reason);
+        emit Log(reason);
+        assert( a >= b);
     }
 
     function lt(
@@ -25,7 +28,8 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         uint256 b,
         string memory reason
     ) internal virtual override {
-        assertLt(a, b, reason);
+        emit Log(reason);
+        assert(a < b);
     }
 
     function lte(
@@ -33,7 +37,8 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         uint256 b,
         string memory reason
     ) internal virtual override {
-        assertLte(a, b, reason);
+        emit Log(reason);
+        assert(a <= b);
     }
 
     function eq(
@@ -41,11 +46,13 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         uint256 b,
         string memory reason
     ) internal virtual override {
-        assertEq(a, b, reason);
+        emit Log(reason);
+        assert(a == b);
     }
 
     function t(bool b, string memory reason) internal virtual override {
-        assertWithMsg(b, reason);
+        emit Log(reason);
+        assert(b);
     }
 
     function between(
@@ -53,7 +60,11 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         uint256 low,
         uint256 high
     ) internal virtual override returns (uint256) {
-        return clampBetween(value, low, high);
+        if (value < low || value > high) {
+            uint ans = low + (value % (high - low + 1));
+            return ans;
+        }
+        return value;
     }
 
     function between(
@@ -61,12 +72,17 @@ contract CryticAsserts is PropertiesAsserts, Asserts {
         int256 low,
         int256 high
     ) internal virtual override returns (int256) {
-        return clampBetween(value, low, high);
+        if(value < low || value > high) {
+            int range = high - low + 1;
+            int clamped = (value - low) % (range);
+            if (clamped < 0) clamped += range;
+            int ans = low + clamped;
+            return ans;
+        }
+        return value;
     }
 
-    function precondition(
-        bool p
-    ) internal virtual override {
+    function precondition(bool p) internal virtual override {
         require(p);
     }
 }

@@ -21,15 +21,19 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
 
     tool_cmd = 'timeout -k 10 {} '.format(timeout)
     if tool == 'halmos':
-        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function {}".format(
+        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function test_ --contract {}".format(
             out_filename, quote(test))
     elif tool == 'foundry':
-        tool_cmd += "forge test --match-test {}".format(quote(test))
+        tool_cmd += "forge test --match-contract {}".format(quote(test))
+    elif tool == 'echidna':
+        tool_cmd += "echidna . --contract {} --config config.yaml".format(quote(test))
+    elif tool == 'medusa':
+        tool_cmd += "medusa fuzz --target-contracts {}".format(quote(test))
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
     os.chdir('projects/{}'.format(quote(project)))
-    cmd('forge clean')
+    cmd('git apply {}.patch'.format(tool))
     cmd(quote(mutant_cmd))
     start_time = timer()
     status = cmd(split(quote(tool_cmd)))
