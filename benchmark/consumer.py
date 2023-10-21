@@ -5,11 +5,13 @@ import time
 import json
 import boto3
 
+
 def handle_message(body: str, local: bool):
     print("Received message: ", body)
     data = json.loads(body)
     if local:
-        cmd("python3 -m benchmark runner --tool {} --project {} --test {} --mutant {}".format(data["tool"], data["project"], data["test"], data["mutant"]))
+        cmd("python3 -m benchmark runner --tool {} --project {} --test {} --mutant {}".format(
+            data["tool"], data["project"], data["test"], data["mutant"]))
     else:
         ecs = boto3.client('ecs')
         response = ecs.run_task(
@@ -73,4 +75,3 @@ def poll_messages(start_runner: json, local=False):
                     continue
 
                 message.delete()
-

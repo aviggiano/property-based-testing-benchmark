@@ -4,6 +4,7 @@ import boto3
 import json
 from os import environ
 
+
 def send_message(obj: json, local=False) -> str:
     msg = json.dumps(obj)
     logging.info(msg)
@@ -35,6 +36,7 @@ def send_message(obj: json, local=False) -> str:
         message_id = response['MessageId']
     logging.info(message_id)
     return message_id
+
 
 def full_benchmark(local=False) -> List[str]:
     tools = ['halmos', 'foundry']

@@ -7,6 +7,7 @@ from .runner import run_benchmark
 from .consumer import poll_messages
 from .producer import send_message, full_benchmark
 
+
 def main():
     parser = mk_arg_parser()
     args = parser.parse_args()
@@ -23,7 +24,8 @@ def main():
         poll_messages(args.start_runner, args.local)
 
     if args.cmd == 'runner':
-        run_benchmark(args.tool, args.project, args.test, args.mutant, args.timeout, args.local)
+        run_benchmark(args.tool, args.project, args.test,
+                      args.mutant, args.timeout, args.local)
 
 
 if __name__ == "__main__":

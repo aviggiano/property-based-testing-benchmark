@@ -3,6 +3,7 @@ import logging
 from os import environ
 from shlex import quote
 
+
 def put_object(key, value, local=False):
     logging.info('Saving to {}: {}'.format(key, value))
     if local:
