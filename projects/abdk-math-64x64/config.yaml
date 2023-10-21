@@ -1,0 +1,7 @@
+testMode: assertion
+seqLen: 1
+testLimit: 4294967295
+shrinkLimit: 0
+stopOnFail: false
+filterFunctions: ["setUp","excludeSenders","targetInterfaces","targetSenders","targetContracts","targetArtifactSelectors","targetArtifacts","targetSelectors","excludeArtifacts","failed","excludeContracts","IS_TEST"]
+filterBlacklist: true

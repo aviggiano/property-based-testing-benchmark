@@ -90,3 +90,6 @@ docs/_build/
 
 ## Local setup
 queue.json
+
+## Crytic
+crytic-export/
