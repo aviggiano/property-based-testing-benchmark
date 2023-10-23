@@ -30,9 +30,10 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     elif tool == 'foundry':
         tool_cmd += "forge test --match-test {}".format(quote(test))
     elif tool == 'echidna':
-        tool_cmd += "echidna . --contract {} --config config.yaml".format(quote(test))
+        cmd('echo ' + '\'filterFunctions: [\"{}.setUp()\",\"{}.excludeSenders()\",\"{}.targetInterfaces()\",\"{}.targetSenders()\",\"{}targetContracts.()\",\"{}.targetArtifactSelectors()\",\"{}.targetArtifacts()\",\"{}.targetSelectors()\",\"{}.excludeArtifacts()\",\"{}.failed()\",\"{}.excludeContracts()\",\"{}.IS_TEST()\"]'.format(contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract) + '\' >> config.yaml')
+        tool_cmd += "echidna . --contract {} --config config.yaml".format(contract)
     elif tool == 'medusa':
-        tool_cmd += "medusa fuzz --target-contracts {}".format(quote(test))
+        tool_cmd += "medusa fuzz --target-contracts {}".format(contract)
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
