@@ -1,3 +1,4 @@
+from typing import List
 import uuid
 from os import chdir
 import logging
@@ -72,6 +73,6 @@ def get_contract(test: str) -> str:
     status, stdout, stderr = cmd("grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
     return stdout
 
-def get_functions() -> list[str]:
+def get_functions() -> List[str]:
     status, stdout, stderr = cmd("grep -ro 'test_[a-zA-Z0-9_]*' test | sed 's/.*://g'")
     return stdout.split('\n')

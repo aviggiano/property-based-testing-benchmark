@@ -70,8 +70,11 @@ def poll_messages(start_runner: json, local=False):
             for message in messages:
                 try:
                     handle_message(message.body, local)
+                    # should we delete failed messages from queue or not?
+                    # if you want to delete them, move this to the end of the try/except block
+                    message.delete()
                 except Exception as e:
                     print(f"Exception while processing message: {repr(e)}")
+                    time.sleep(10)
                     continue
 
-                message.delete()
