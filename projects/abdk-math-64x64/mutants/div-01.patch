@@ -1,0 +1,13 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..ebe7f98 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -227,7 +227,7 @@ library ABDKMath64x64 {
+   function div (int128 x, int128 y) internal pure returns (int128) {
+     unchecked {
+       require (y != 0);
+-      int256 result = (int256 (x) << 64) / y;
++      int256 result = (int256 (x)) / y;
+       require (result >= MIN_64x64 && result <= MAX_64x64);
+       return int128 (result);
+     }

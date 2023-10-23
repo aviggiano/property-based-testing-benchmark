@@ -1,0 +1,20 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..e7dc855 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -199,7 +199,6 @@ library ABDKMath64x64 {
+    * @return unsigned 256-bit integer number
+    */
+   function mulu (int128 x, uint256 y) internal pure returns (uint256) {
+-    unchecked {
+       if (y == 0) return 0;
+ 
+       require (x >= 0);
+@@ -213,7 +212,6 @@ library ABDKMath64x64 {
+       require (hi <=
+         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF - lo);
+       return hi + lo;
+-    }
+   }
+ 
+   /**

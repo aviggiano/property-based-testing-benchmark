@@ -1,0 +1,13 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..e16cc37 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -347,7 +347,7 @@ library ABDKMath64x64 {
+    */
+   function gavg (int128 x, int128 y) internal pure returns (int128) {
+     unchecked {
+-      int256 m = int256 (x) * int256 (y);
++      int256 m = int256 (x * y);
+       require (m >= 0);
+       require (m <
+           0x4000000000000000000000000000000000000000000000000000000000000000);

@@ -1,0 +1,15 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..21d6867 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -289,10 +289,8 @@ library ABDKMath64x64 {
+    * @return signed 64.64-bit fixed point number
+    */
+   function neg (int128 x) internal pure returns (int128) {
+-    unchecked {
+       require (x != MIN_64x64);
+       return -x;
+-    }
+   }
+ 
+   /**

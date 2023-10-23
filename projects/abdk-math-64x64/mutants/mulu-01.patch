@@ -1,0 +1,13 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..5e3b882 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -212,7 +212,7 @@ library ABDKMath64x64 {
+ 
+       require (hi <=
+         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF - lo);
+-      return hi + lo;
++      return hi | lo;
+     }
+   }
+ 

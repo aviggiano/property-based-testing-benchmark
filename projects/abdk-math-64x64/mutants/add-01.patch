@@ -1,0 +1,13 @@
+diff --git a/lib/abdk-libraries-solidity/ABDKMath64x64.sol b/lib/abdk-libraries-solidity/ABDKMath64x64.sol
+index 2cbe46a..ca171a2 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -116,7 +116,7 @@ library ABDKMath64x64 {
+    */
+   function add (int128 x, int128 y) internal pure returns (int128) {
+     unchecked {
+-      int256 result = int256(x) + y;
++      int256 result = int256(x + y);
+       require (result >= MIN_64x64 && result <= MAX_64x64);
+       return int128 (result);
+     }

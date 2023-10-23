@@ -1,0 +1,15 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..2cbbf48 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -445,10 +445,8 @@ library ABDKMath64x64 {
+    * @return signed 64.64-bit fixed point number
+    */
+   function sqrt (int128 x) internal pure returns (int128) {
+-    unchecked {
+       require (x >= 0);
+       return int128 (sqrtu (uint256 (int256 (x)) << 64));
+-    }
+   }
+ 
+   /**

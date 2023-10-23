@@ -1,0 +1,13 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..ab0a6a5 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -642,7 +642,7 @@ library ABDKMath64x64 {
+       if (x & 0x1 > 0)
+         result = result * 0x10000000000000000B17217F7D1CF79AB >> 128;
+ 
+-      result >>= uint256 (int256 (63 - (x >> 64)));
++      result >>= uint256 (int256 (64 - (x >> 63)));
+       require (result <= uint256 (int256 (MAX_64x64)));
+ 
+       return int128 (int256 (result));

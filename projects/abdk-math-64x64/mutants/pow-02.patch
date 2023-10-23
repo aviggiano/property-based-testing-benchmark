@@ -1,0 +1,13 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..62bb73a 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -372,7 +372,7 @@ library ABDKMath64x64 {
+       absResult = 0x100000000000000000000000000000000;
+ 
+       if (absX <= 0x10000000000000000) {
+-        absX <<= 63;
++        absX <<= 64;
+         while (y != 0) {
+           if (y & 0x1 != 0) {
+             absResult = absResult * absX >> 127;

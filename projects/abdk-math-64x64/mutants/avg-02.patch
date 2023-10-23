@@ -1,0 +1,14 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..f08a659 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -332,9 +332,7 @@ library ABDKMath64x64 {
+    * @return signed 64.64-bit fixed point number
+    */
+   function avg (int128 x, int128 y) internal pure returns (int128) {
+-    unchecked {
+       return int128 ((int256 (x) + int256 (y)) >> 1);
+-    }
+   }
+ 
+   /**

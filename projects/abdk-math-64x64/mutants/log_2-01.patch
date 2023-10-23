@@ -1,0 +1,18 @@
+diff --git a/ABDKMath64x64.sol b/ABDKMath64x64.sol
+index 2cbe46a..07a5680 100644
+--- a/ABDKMath64x64.sol
++++ b/ABDKMath64x64.sol
+@@ -472,11 +472,11 @@ library ABDKMath64x64 {
+       if (xc >= 0x2) msb += 1;  // No need to shift xc anymore
+ 
+       int256 result = msb - 64 << 64;
+-      uint256 ux = uint256 (int256 (x)) << uint256 (127 - msb);
++      uint256 ux = uint256 (int256 (x)) << uint256 (128 - msb);
+       for (int256 bit = 0x8000000000000000; bit > 0; bit >>= 1) {
+         ux *= ux;
+         uint256 b = ux >> 255;
+-        ux >>= 127 + b;
++        ux >>= 128 + b;
+         result += bit * int256 (b);
+       }
+ 
