@@ -49,7 +49,7 @@ def full_benchmark(local=False) -> List[str]:
                 obj = {
                     "tool": tool,
                     "project": project,
-                    "test": "ABDKMath64x64AddProperties",
+                    "test": "test_add_",
                     "timeout": 3600,
                     "mutant": mutant,
                 }

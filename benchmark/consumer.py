@@ -1,5 +1,5 @@
 from os import environ
-from .exec import cmd
+from .cmd import cmd
 import logging
 import time
 import json

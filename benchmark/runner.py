@@ -2,7 +2,7 @@ import uuid
 import os
 import logging
 import json
-from .exec import cmd
+from .cmd import cmd
 from .storage import put_object
 from shlex import quote, split
 from timeit import default_timer as timer
@@ -11,8 +11,12 @@ from timeit import default_timer as timer
 def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int, local=False):
     job_id = str(uuid.uuid4())
 
-    out_filename = 'out-{}.json'.format(job_id)
-    with open(out_filename, 'a+') as f:
+    os.chdir('projects/{}'.format(quote(project)))
+    contract = get_contract(test)
+
+    output_filename = '{}-output.json'.format(job_id)
+    output = ''
+    with open(output_filename, 'a+') as f:
         f.close()
 
     mutant_cmd = 'true'
@@ -21,10 +25,10 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
 
     tool_cmd = 'timeout -k 10 {} '.format(timeout)
     if tool == 'halmos':
-        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function test_ --contract {}".format(
-            out_filename, quote(test))
+        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function {} --contract {}".format(
+            output_filename, quote(test), contract)
     elif tool == 'foundry':
-        tool_cmd += "forge test --match-contract {}".format(quote(test))
+        tool_cmd += "forge test --match-test {}".format(quote(test))
     elif tool == 'echidna':
         tool_cmd += "echidna . --contract {} --config config.yaml".format(quote(test))
     elif tool == 'medusa':
@@ -32,20 +36,31 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
-    os.chdir('projects/{}'.format(quote(project)))
     cmd('git apply {}.patch'.format(tool))
     cmd(quote(mutant_cmd))
     start_time = timer()
-    status = cmd(split(quote(tool_cmd)))
+    status, stdout, stderr = cmd(split(quote(tool_cmd)))
     end_time = timer()
+    with open(output_filename) as f:
+        output = f.read()
+        f.close()
     result = {
         'job_id': job_id,
         'tool': tool,
         'project': project,
+        'contract': contract,
         'test': test,
         'mutant': mutant,
         'time': end_time - start_time,
-        'status': status
+        'status': status,
+        'output': output,
+        'stdout': stdout,
+        'stderr': stderr,
     }
-    put_object('result-{}.json'.format(job_id), json.dumps(result), local)
-    put_object('out-{}.json'.format(job_id), json.dumps(result), local)
+    cmd('git apply -R {}.patch'.format(tool))
+    put_object('{}.json'.format(job_id), json.dumps(result), local)
+
+
+def get_contract(test: str) -> str:
+    status, stdout, stderr = cmd("grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
+    return stdout
