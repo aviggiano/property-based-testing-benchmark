@@ -1,5 +1,5 @@
 import uuid
-import os
+from os import chdir
 import logging
 import json
 from .cmd import cmd
@@ -11,7 +11,7 @@ from timeit import default_timer as timer
 def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int, local=False):
     job_id = str(uuid.uuid4())
 
-    os.chdir('projects/{}'.format(quote(project)))
+    chdir('projects/{}'.format(quote(project)))
     contract = get_contract(test)
 
     for fun in get_functions():

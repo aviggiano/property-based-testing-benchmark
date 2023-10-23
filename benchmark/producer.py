@@ -2,7 +2,9 @@ from typing import List
 import logging
 import boto3
 import json
-from os import environ
+from os import environ, chdir
+from .cmd import cmd
+from .runner import get_functions
 
 
 def send_message(obj: json, local=False) -> str:
@@ -43,16 +45,20 @@ def full_benchmark(local=False) -> List[str]:
     projects = ['abdk-math-64x64']
     mutants = ['']
     ans = []
-    for tool in tools:
-        for project in projects:
-            for mutant in mutants:
-                obj = {
-                    "tool": tool,
-                    "project": project,
-                    "test": "test_add_",
-                    "timeout": 3600,
-                    "mutant": mutant,
-                }
-                message_id = send_message(obj, local)
-                ans.append(message_id)
+    for project in projects:
+        chdir('projects/{}'.format(project))
+        functions = get_functions()
+        for test in functions:
+            for tool in tools:
+                for mutant in mutants:
+                    obj = {
+                        "tool": tool,
+                        "project": project,
+                        "test": test,
+                        "timeout": 3600,
+                        "mutant": mutant,
+                    }
+                    message_id = send_message(obj, local)
+                    ans.append(message_id)
+        chdir('../..')
     return ans
