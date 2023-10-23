@@ -64,6 +64,7 @@ def full_benchmark(local=False) -> List[str]:
                     message_id = send_message(obj, local)
                     ans.append(message_id)
         chdir('../..')
+    print('{} benchmark jobs created'.format(len(ans)))
     return ans
 
 
