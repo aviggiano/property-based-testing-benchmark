@@ -11,22 +11,28 @@ RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y curl git gcc make python3-pip unzip jq wget tar
 
-RUN echo "Install Node.js"
-ENV NODE_VERSION=18.18.2
-RUN apt install -y curl
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-ENV NVM_DIR=/root/.nvm
-RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-RUN node --version
-RUN npm --version
+RUN echo "Install Python 3.11"
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa -y
+RUN apt-get update
+RUN apt-get install -y python3.11
 
-RUN echo "Install yarn"
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt update && apt install -y yarn
+# RUN echo "Install Node.js"
+# ENV NODE_VERSION=18.18.2
+# RUN apt install -y curl
+# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+# ENV NVM_DIR=/root/.nvm
+# RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+# RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+# RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+# ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+# RUN node --version
+# RUN npm --version
+# 
+# RUN echo "Install yarn"
+# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+# RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# RUN apt update && apt install -y yarn
 
 RUN echo "Install solc-select"
 RUN pip3 install solc-select
