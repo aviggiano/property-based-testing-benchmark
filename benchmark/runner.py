@@ -15,8 +15,10 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     contract = get_contract(test)
 
     for fun in get_functions():
-        if fun != test:
-            cmd("find test -type f -exec sed -i''.bak 's/\(" + fun + ".*\)public/\\1private/' \{\} \;")
+        if fun.startswith(test) == False:
+            # https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
+            # NOTE: this only works on GNU sed
+            cmd("find test -type f -exec sed -i -e 's/\(" + fun + ".*\)public/\\1private/' \{\} \;")
 
     output_filename = '{}-output.json'.format(job_id)
     output = ''
