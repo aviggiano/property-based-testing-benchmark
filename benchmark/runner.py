@@ -14,6 +14,8 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     os.chdir('projects/{}'.format(quote(project)))
     contract = get_contract(test)
 
+    print(get_functions())
+
     output_filename = '{}-output.json'.format(job_id)
     output = ''
     with open(output_filename, 'a+') as f:
@@ -65,3 +67,7 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
 def get_contract(test: str) -> str:
     status, stdout, stderr = cmd("grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
     return stdout
+
+def get_functions() -> list[str]:
+    status, stdout, stderr = cmd("grep -ro 'test_[a-zA-Z0-9_]*' test | sed 's/.*://g'")
+    return stdout.split('\n')

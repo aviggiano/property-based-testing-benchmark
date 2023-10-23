@@ -17,4 +17,4 @@ def cmd(cmd: str) -> Tuple[int, str, str]:
 
     status = p.returncode
 
-    return status, '\n'.join(stdout)[:-1], '\n'.join(stderr)[:-1]
+    return status, ''.join(stdout)[:-1], ''.join(stderr)[:-1]
