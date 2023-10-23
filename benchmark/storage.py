@@ -7,7 +7,7 @@ from shlex import quote
 def put_object(key, value, local=False):
     logging.info('Saving to {}: {}'.format(key, value))
     if local:
-        return open('/tmp/{}'.format(quote(key)), 'w').write(value)
+        return open(key, 'w').write(value)
     else:
         BUCKET = environ['S3_BUCKET']
         s3 = boto3.client('s3')
