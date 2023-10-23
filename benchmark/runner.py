@@ -14,7 +14,9 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     os.chdir('projects/{}'.format(quote(project)))
     contract = get_contract(test)
 
-    print(get_functions())
+    for fun in get_functions():
+        if fun != test:
+            cmd("find test -type f -exec sed -i''.bak 's/\(" + fun + ".*\)public/\\1private/' \{\} \;")
 
     output_filename = '{}-output.json'.format(job_id)
     output = ''
