@@ -10,7 +10,7 @@ def handle_message(body: str, local: bool):
     print("Received message: ", body)
     data = json.loads(body)
     if local:
-        cmd("python3 -m benchmark runner --tool {} --project {} --test {} --mutant {}".format(
+        cmd("python3 -m benchmark runner --preprocess {} --tool {} --project {} --test {} --mutant {}".format(data["preprocess"],
             data["tool"], data["project"], data["test"], data["mutant"]))
     else:
         ecs = boto3.client('ecs')
@@ -77,4 +77,3 @@ def poll_messages(start_runner: json, local=False):
                     print(f"Exception while processing message: {repr(e)}")
                     time.sleep(10)
                     continue
-

@@ -43,17 +43,20 @@ def send_message(obj: json, local=False) -> str:
 def full_benchmark(local=False) -> List[str]:
     tools = ['halmos', 'foundry', 'echidna', 'medusa']
     projects = ['abdk-math-64x64']
-    mutants = ['']
     ans = []
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
-        for test in functions:
-            for tool in tools:
+        for tool in tools:
+            for test in functions:
+                mutants = get_mutants(test)
                 for mutant in mutants:
+                    preprocess = 'git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
+                        tool, mutant)
                     obj = {
                         "tool": tool,
                         "project": project,
+                        'preprocess': preprocess,
                         "test": test,
                         "timeout": 3600,
                         "mutant": mutant,
@@ -62,3 +65,16 @@ def full_benchmark(local=False) -> List[str]:
                     ans.append(message_id)
         chdir('../..')
     return ans
+
+
+def get_mutants(test: str) -> List[str]:
+    status, fun, stderr = cmd(
+        "find mutants | sed 's/mutants\/\(.*\)\-.*/\\1/'")
+    mutants = []
+    for base_test in fun.split('\n'):
+        if base_test in test:
+            status, mutant, stderr = cmd(
+                "find mutants | grep {} | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(base_test))
+            mutants = mutant.split('\n')
+            break
+    return mutants

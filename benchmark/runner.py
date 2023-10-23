@@ -9,7 +9,7 @@ from shlex import quote, split
 from timeit import default_timer as timer
 
 
-def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int, local=False):
+def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: str, timeout: int, local=False):
     job_id = str(uuid.uuid4())
 
     chdir('projects/{}'.format(quote(project)))
@@ -19,7 +19,8 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
         if fun.startswith(test) == False:
             # https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
             # NOTE: this only works on GNU sed
-            cmd("find test -type f -exec sed -i -e 's/\(" + fun + ".*\)public/\\1private/' \{\} \;")
+            cmd("find test -type f -exec sed -i -e 's/\(" +
+                fun + ".*\)public/\\1private/' \{\} \;")
 
     output_filename = '{}-output.json'.format(job_id)
     output = ''
@@ -37,14 +38,17 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
     elif tool == 'foundry':
         tool_cmd += "forge test --match-test {}".format(quote(test))
     elif tool == 'echidna':
-        cmd('echo ' + '\'filterFunctions: [\"{}.setUp()\",\"{}.excludeSenders()\",\"{}.targetInterfaces()\",\"{}.targetSenders()\",\"{}targetContracts.()\",\"{}.targetArtifactSelectors()\",\"{}.targetArtifacts()\",\"{}.targetSelectors()\",\"{}.excludeArtifacts()\",\"{}.failed()\",\"{}.excludeContracts()\",\"{}.IS_TEST()\"]'.format(contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract) + '\' >> config.yaml')
-        tool_cmd += "echidna . --contract {} --config config.yaml".format(contract)
+        cmd('echo ' + '\'filterFunctions: [\"{}.setUp()\",\"{}.excludeSenders()\",\"{}.targetInterfaces()\",\"{}.targetSenders()\",\"{}targetContracts.()\",\"{}.targetArtifactSelectors()\",\"{}.targetArtifacts()\",\"{}.targetSelectors()\",\"{}.excludeArtifacts()\",\"{}.failed()\",\"{}.excludeContracts()\",\"{}.IS_TEST()\"]'.format(
+            contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract) + '\' >> config.yaml')
+        tool_cmd += "echidna . --contract {} --config config.yaml".format(
+            contract)
     elif tool == 'medusa':
         tool_cmd += "medusa fuzz --target-contracts {}".format(contract)
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
-    cmd('git apply {}.patch'.format(tool))
+    if preprocess != '':
+        cmd(preprocess)
     cmd(quote(mutant_cmd))
     start_time = timer()
     status, stdout, stderr = cmd(split(quote(tool_cmd)))
@@ -70,9 +74,12 @@ def run_benchmark(tool: str, project: str, test: str, mutant: str, timeout: int,
 
 
 def get_contract(test: str) -> str:
-    status, stdout, stderr = cmd("grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
+    status, stdout, stderr = cmd(
+        "grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
     return stdout
 
+
 def get_functions() -> List[str]:
-    status, stdout, stderr = cmd("grep -ro 'test_[a-zA-Z0-9_]*' test | sed 's/.*://g'")
+    status, stdout, stderr = cmd(
+        "grep -ro 'test_[a-zA-Z0-9_]*' test | sed 's/.*://g'")
     return stdout.split('\n')

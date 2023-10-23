@@ -24,7 +24,7 @@ def main():
         poll_messages(args.start_runner, args.local)
 
     if args.cmd == 'runner':
-        run_benchmark(args.tool, args.project, args.test,
+        run_benchmark(args.preprocess, args.tool, args.project, args.test,
                       args.mutant, args.timeout, args.local)
 
 

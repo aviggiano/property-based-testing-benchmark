@@ -60,6 +60,11 @@ def mk_arg_parser() -> argparse.ArgumentParser:
     # runner options
 
     runner.add_argument(
+        "--preprocess",
+        metavar="CMD",
+        help="preprocess command (e.g. apply specific patch, etc)",
+    )
+    runner.add_argument(
         "--tool",
         metavar="TOOL",
         choices=["halmos", "foundry", "echidna", "medusa"],
