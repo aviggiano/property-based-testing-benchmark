@@ -47,9 +47,10 @@ def full_benchmark(local=False) -> List[str]:
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
+        all_mutants = get_all_mutants()
         for tool in tools:
             for test in functions:
-                mutants = get_mutants(test)
+                mutants = get_mutants_by_test(all_mutants, test)
                 for mutant in mutants:
                     preprocess = 'git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
                         tool, mutant)
@@ -68,14 +69,18 @@ def full_benchmark(local=False) -> List[str]:
     return ans
 
 
-def get_mutants(test: str) -> List[str]:
-    status, fun, stderr = cmd(
+def get_all_mutants() -> List[str]:
+    status, stdout, stderr = cmd(
         "find mutants | sed 's/mutants\/\(.*\)\-.*/\\1/'")
-    mutants = []
-    for base_test in fun.split('\n'):
-        if base_test in test:
-            status, mutant, stderr = cmd(
-                "find mutants | grep {} | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(base_test))
-            mutants = mutant.split('\n')
+    return stdout.split('\n')
+
+
+def get_mutants_by_test(all_mutants: List[str], test: str) -> List[str]:
+    mutants_by_test = []
+    for mutant in all_mutants:
+        if mutant in test:
+            status, stdout, stderr = cmd(
+                "find mutants | grep {} | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(mutant))
+            mutants_by_test = stdout.split('\n')
             break
-    return mutants
+    return mutants_by_test
