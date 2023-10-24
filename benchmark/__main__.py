@@ -25,7 +25,7 @@ def main():
 
     if args.cmd == 'runner':
         run_benchmark(args.preprocess, args.tool, args.project, args.test,
-                      args.mutant, args.timeout, args.local)
+                      args.mutant, args.timeout, args.prefix, args.local)
 
 
 if __name__ == "__main__":

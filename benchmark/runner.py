@@ -9,7 +9,7 @@ from shlex import quote, split
 from timeit import default_timer as timer
 
 
-def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: str, timeout: int, local=False):
+def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: str, timeout: int, prefix: str, local=False):
     job_id = str(uuid.uuid4())
 
     chdir('projects/{}'.format(quote(project)))
@@ -43,7 +43,8 @@ def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: s
         tool_cmd += "echidna . --contract {} --config config.yaml".format(
             contract)
     elif tool == 'medusa':
-        tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(contract)
+        tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(
+            contract)
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
@@ -70,7 +71,7 @@ def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: s
         'stderr': stderr,
     }
     cmd('git apply -R {}.patch'.format(tool))
-    put_object('{}.json'.format(job_id), json.dumps(result), local)
+    put_object('{}{}.json'.format(prefix, job_id), json.dumps(result), local)
 
 
 def get_contract(test: str) -> str:

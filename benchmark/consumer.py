@@ -10,8 +10,8 @@ def handle_message(body: str, local: bool):
     print("Received message: ", body)
     data = json.loads(body)
     if local:
-        cmd("python3 -m benchmark runner --preprocess {} --tool {} --project {} --test {} --mutant {}".format(data["preprocess"],
-            data["tool"], data["project"], data["test"], data["mutant"]))
+        cmd("python3 -m benchmark runner --preprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"],
+            data["tool"], data["project"], data["test"], data["mutant"], data["timeout"], data["prefix"]))
     else:
         ecs = boto3.client('ecs')
         response = ecs.run_task(
@@ -29,7 +29,7 @@ def handle_message(body: str, local: bool):
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--tool", data["preprocess"], data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"]],
+                        'command': ["--", "runner", "--tool", data["preprocess"], data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", data["timeout"], "--prefix", data["prefix"]],
                     }
                 ]
             },
@@ -37,10 +37,11 @@ def handle_message(body: str, local: bool):
             platformVersion='LATEST',
         )
         tasks = response.get('tasks', [])
-        if(len(tasks) > 0):
+        if (len(tasks) > 0):
             logging.info(tasks.pop().get('taskArn', ''))
         else:
             raise Exception('No tasks created')
+
 
 def get_queue_statistics(local=False):
     if local:
@@ -59,7 +60,8 @@ def get_queue_statistics(local=False):
         sqs = boto3.resource("sqs")
         queue = sqs.get_queue_by_name(QueueName=environ['SQS_QUEUE_NAME'])
         attributes = queue.attributes
-        logging.info('{}/{}'.format(attributes.get('ApproximateNumberOfMessages'), attributes.get('ApproximateNumberOfMessagesNotVisible')))
+        logging.info('{}/{}'.format(attributes.get('ApproximateNumberOfMessages'),
+                     attributes.get('ApproximateNumberOfMessagesNotVisible')))
 
 
 def poll_messages(start_runner: json, queue_statistics: bool, local=False):
@@ -96,7 +98,7 @@ def poll_messages(start_runner: json, queue_statistics: bool, local=False):
             for message in messages:
                 try:
                     handle_message(message.body, local)
-                    # should we delete failed messages from queue or not?
+                    # TODO should we delete failed messages from queue or not?
                     # if you want to delete them, move this to the end of the try/except block
                     message.delete()
                 except Exception as e:

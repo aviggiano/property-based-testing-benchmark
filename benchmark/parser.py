@@ -101,5 +101,11 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         default=3600,
         help="run tests for a specific timeout (default: %(default)s)",
     )
+    runner.add_argument(
+        "--prefix",
+        metavar="PREFIX",
+        default="",
+        help="save output with a prefix (default: '%(default)s')",
+    )
 
     return parser
