@@ -6,7 +6,7 @@ import json
 import boto3
 
 
-def handle_message(body: str, local: bool):
+def handle_message(body: str, local: bool) -> str:
     print("Received message: ", body)
     data = json.loads(body)
     if local:
@@ -29,7 +29,7 @@ def handle_message(body: str, local: bool):
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", data["timeout"], "--prefix", data["prefix"]],
+                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", str(data["timeout"]), "--prefix", data["prefix"]],
                     }
                 ]
             },
@@ -38,9 +38,11 @@ def handle_message(body: str, local: bool):
         )
         tasks = response.get('tasks', [])
         if (len(tasks) > 0):
-            logging.info(tasks.pop().get('taskArn', ''))
+            task_arn = tasks.pop().get('taskArn', '')
+            logging.info(task_arn)
+            return task_arn
         else:
-            raise Exception('No tasks created')
+            return ''
 
 
 def get_queue_statistics(local=False):
@@ -97,11 +99,10 @@ def poll_messages(start_runner: json, queue_statistics: bool, local=False):
             )
             for message in messages:
                 try:
-                    handle_message(message.body, local)
-                    # TODO should we delete failed messages from queue or not?
-                    # if you want to delete them, move this to the end of the try/except block
-                    message.delete()
+                    task_arn = handle_message(message.body, local)
+                    if task_arn != '':
+                        message.delete()
                 except Exception as e:
                     print(f"Exception while processing message: {repr(e)}")
-                    time.sleep(10)
+                    message.delete()
                     continue
