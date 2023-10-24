@@ -57,12 +57,19 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         type=json.loads,
     )
 
+    consumer.add_argument(
+        "--queue-statistics",
+        action="store_true",
+        help="print queue statistics",
+    )
+
     # runner options
 
     runner.add_argument(
         "--preprocess",
         metavar="CMD",
-        help="preprocess command (e.g. apply specific patch, etc)",
+        default="",
+        help="preprocess command, e.g. apply a patch before running a specific tool (default: '%(default)s')",
     )
     runner.add_argument(
         "--tool",

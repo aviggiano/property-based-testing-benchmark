@@ -21,7 +21,7 @@ def main():
             send_message(args.send_message, args.local)
 
     if args.cmd == 'consumer':
-        poll_messages(args.start_runner, args.local)
+        poll_messages(args.start_runner, args.queue_statistics, args.local)
 
     if args.cmd == 'runner':
         run_benchmark(args.preprocess, args.tool, args.project, args.test,

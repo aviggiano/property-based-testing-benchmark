@@ -29,17 +29,43 @@ def handle_message(body: str, local: bool):
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"]],
+                        'command': ["--", "runner", "--tool", data["preprocess"], data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"]],
                     }
                 ]
             },
             count=1,
             platformVersion='LATEST',
         )
-        logging.info(response.get('tasks', []).pop().get('taskArn', ''))
+        tasks = response.get('tasks', [])
+        if(len(tasks) > 0):
+            logging.info(tasks.pop().get('taskArn', ''))
+        else:
+            raise Exception('No tasks created')
+
+def get_queue_statistics(local=False):
+    if local:
+        with open('queue.json', 'a+') as f:
+            f.seek(0)
+            f.close()
+        with open('queue.json', 'r+') as f:
+            content = f.read()
+            if content != '':
+                queue = json.loads(content)
+            else:
+                queue = []
+            logging.info(len(queue))
+            f.close()
+    else:
+        sqs = boto3.resource("sqs")
+        queue = sqs.get_queue_by_name(QueueName=environ['SQS_QUEUE_NAME'])
+        attributes = queue.attributes
+        logging.info('{}/{}'.format(attributes.get('ApproximateNumberOfMessages'), attributes.get('ApproximateNumberOfMessagesNotVisible')))
 
 
-def poll_messages(start_runner: json, local=False):
+def poll_messages(start_runner: json, queue_statistics: bool, local=False):
+    if queue_statistics:
+        return get_queue_statistics(local)
+
     if start_runner is not None:
         return handle_message(json.dumps(start_runner), local)
 
