@@ -86,6 +86,5 @@ def get_mutants_by_test(all_mutants: List[str], test: str) -> List[str]:
         if mutant in test:
             status, stdout, stderr = cmd(
                 "find mutants | grep {} | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(mutant))
-            mutants_by_test = stdout.split('\n')
-            break
-    return mutants_by_test
+            mutants_by_test += stdout.split('\n')
+    return list(set(mutants_by_test))
