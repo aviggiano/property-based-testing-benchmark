@@ -29,7 +29,7 @@ def handle_message(body: str, local: bool):
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--tool", data["preprocess"], data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", data["timeout"], "--prefix", data["prefix"]],
+                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", data["timeout"], "--prefix", data["prefix"]],
                     }
                 ]
             },
