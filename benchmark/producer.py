@@ -21,7 +21,7 @@ def send_message(obj: json, local=False) -> str:
             else:
                 queue = []
             queue.append(msg)
-            print(queue)
+            # print(queue)
             f.seek(0)
             f.write(json.dumps(queue))
             f.close()
@@ -41,12 +41,16 @@ def send_message(obj: json, local=False) -> str:
 
 
 def full_benchmark(local=False) -> List[str]:
-    tools = ['halmos', 'foundry', 'echidna', 'medusa']
+    # tools = ['halmos', 'foundry', 'echidna', 'medusa']
+    # NOTE only halmos for now
+    tools = ['halmos']
     projects = ['abdk-math-64x64']
     ans = []
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
+        # NOTE get only test_add functions
+        functions = [f for f in functions if 'test_add' in f]
         all_mutants = get_all_mutants()
         for tool in tools:
             for test in functions:
