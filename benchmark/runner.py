@@ -43,7 +43,7 @@ def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: s
         tool_cmd += "echidna . --contract {} --config config.yaml".format(
             contract)
     elif tool == 'medusa':
-        tool_cmd += "medusa fuzz --target-contracts {}".format(contract)
+        tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(contract)
     else:
         raise ValueError('Unknown tool: {}'.format(tool))
 
