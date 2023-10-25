@@ -8,21 +8,22 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from scipy.stats import mannwhitneyu
-from .objects import objects
 import json
 
 image_filename = '/tmp/final.png'
 csv_filename = '/tmp/final.csv'
 
-
 def analyse_results(args: dict):
-    keys = list_objects(args.prefix, args.local)
-    objects = []
-    for key in keys:
-        data = get_object(key, args.local)
-        obj = json.loads(data)
-        objects.append(obj)
-    save_csv(objects)
+    if args.load_from_csv:
+        objects = load_csv()
+    else:
+        keys = list_objects(args.prefix, args.local)
+        objects = []
+        for key in keys:
+            data = get_object(key, args.local)
+            obj = json.loads(data)
+            objects.append(obj)
+        save_csv(objects)
 
     df = pd.DataFrame(objects)
     # Sort the DataFrame by 'mutant'
@@ -133,3 +134,12 @@ def save_csv(objects: List[dict]):
         writer.writeheader()  # Write the header
         for row in objects:
             writer.writerow(row)
+
+def load_csv() -> List[dict]:
+    ans = []
+    with open(csv_filename, "r+", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            ans.append(row)
+    return ans
+

@@ -127,5 +127,10 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         default="",
         help="load output with a prefix (default: '%(default)s')",
     )
+    analyser.add_argument(
+        "--load-from-csv",
+        action="store_true",
+        help="load output from CSV",
+    )
 
     return parser
