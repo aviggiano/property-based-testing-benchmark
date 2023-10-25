@@ -72,7 +72,7 @@ def get_queue_statistics(local=False):
                      attributes.get('ApproximateNumberOfMessagesNotVisible')))
 
 
-def poll_messages(args: obj):
+def poll_messages(args: dict):
     if args.queue_statistics:
         return get_queue_statistics(local)
 

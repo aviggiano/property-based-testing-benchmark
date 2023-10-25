@@ -9,10 +9,7 @@ from shlex import quote, split
 from timeit import default_timer as timer
 
 
-def run_benchmark(
-    args: obj
-
-):
+def run_benchmark(args: dict):
     job_id = str(uuid.uuid4())
 
     chdir('projects/{}'.format(quote(args.project)))

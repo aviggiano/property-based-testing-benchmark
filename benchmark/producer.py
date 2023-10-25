@@ -2,12 +2,13 @@ from typing import List
 import logging
 import boto3
 import json
+import argparse
 from os import environ, chdir
 from .cmd import cmd
 from .runner import get_functions
 
 
-def send_message(args: obj) -> str:
+def send_message(args: dict) -> str:
     msg = json.dumps(args.send_message)
     logging.info(msg)
     if args.local:
@@ -40,7 +41,7 @@ def send_message(args: obj) -> str:
     return message_id
 
 
-def full_benchmark(args: obj) -> List[str]:
+def full_benchmark(args: dict) -> List[str]:
     # tools = ['halmos', 'foundry', 'echidna', 'medusa']
     # NOTE only halmos for now
     tools = ['halmos']
@@ -59,7 +60,7 @@ def full_benchmark(args: obj) -> List[str]:
                     preprocess = 'git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
                         tool, mutant)
                     postprocess = 'git checkout . && cd lib/abdk-libraries-solidity && git checkout . && cd ../../'
-                    obj = {
+                    msg = {
                         "tool": tool,
                         "project": project,
                         'preprocess': preprocess,
@@ -69,7 +70,11 @@ def full_benchmark(args: obj) -> List[str]:
                         "mutant": mutant,
                         "prefix": "v2-"
                     }
-                    message_id = send_message(obj, args.local)
+                    print(args)
+                    ns = argparse.Namespace()
+                    ns.send_message = msg
+                    ns.local = args.local
+                    message_id = send_message(ns)
                     ans.append(message_id)
         chdir('../..')
     print('{} benchmark jobs created'.format(len(ans)))
