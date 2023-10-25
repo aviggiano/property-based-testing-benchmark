@@ -51,7 +51,9 @@ def full_benchmark(args: dict) -> List[str]:
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
-        functions = [f for f in functions if 'test_add' in f]
+        filter_functions = ['test_abs_multiplicativeness', 'test_exp_inverse', 'test_exp_negative_exponent', 'test_exp_2_inverse', 'test_exp_2_negative_exponent', 'test_inv_double_inverse', 'test_inv_division_noncommutativity', 'test_inv_multiplication', 'test_inv_identity', 'test_mul_associative', 'test_mul_distributive', 'test_mul_values', 'test_sqrt_inverse_mul', 'test_sqrt_inverse_pow', 'test_sqrt_distributive']
+        functions = [f for f in functions if f not in filter_functions]
+
         all_mutants = get_all_mutants()
         for tool in tools:
             for test in functions:
