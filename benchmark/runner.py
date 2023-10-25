@@ -9,14 +9,17 @@ from shlex import quote, split
 from timeit import default_timer as timer
 
 
-def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: str, timeout: int, prefix: str, local=False):
+def run_benchmark(
+    args: obj
+
+):
     job_id = str(uuid.uuid4())
 
-    chdir('projects/{}'.format(quote(project)))
-    contract = get_contract(test)
+    chdir('projects/{}'.format(quote(args.project)))
+    contract = get_contract(args.test)
 
     for fun in get_functions():
-        if fun.startswith(test) == False:
+        if fun.startswith(args.test) == False:
             # https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
             # NOTE: this only works on GNU sed
             cmd("find test -type f -exec sed -i -e 's/\(" +
@@ -28,28 +31,28 @@ def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: s
         f.close()
 
     mutant_cmd = 'true'
-    if mutant != '':
-        mutant_cmd = 'git apply mutants/{}.patch'.format(quote(mutant))
+    if args.mutant != '':
+        mutant_cmd = 'git apply mutants/{}.patch'.format(quote(args.mutant))
 
-    tool_cmd = 'timeout -k 10 {} '.format(timeout)
-    if tool == 'halmos':
+    tool_cmd = 'timeout -k 10 {} '.format(args.timeout)
+    if args.tool == 'halmos':
         tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function {} --contract {}".format(
-            output_filename, quote(test), contract)
-    elif tool == 'foundry':
-        tool_cmd += "forge test --match-test {}".format(quote(test))
-    elif tool == 'echidna':
+            output_filename, quote(args.test), contract)
+    elif args.tool == 'foundry':
+        tool_cmd += "forge test --match-test {}".format(quote(args.test))
+    elif args.tool == 'echidna':
         cmd('echo ' + '\'filterFunctions: [\"{}.setUp()\",\"{}.excludeSenders()\",\"{}.targetInterfaces()\",\"{}.targetSenders()\",\"{}targetContracts.()\",\"{}.targetArtifactSelectors()\",\"{}.targetArtifacts()\",\"{}.targetSelectors()\",\"{}.excludeArtifacts()\",\"{}.failed()\",\"{}.excludeContracts()\",\"{}.IS_TEST()\"]'.format(
             contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract) + '\' >> config.yaml')
         tool_cmd += "echidna . --contract {} --config config.yaml".format(
             contract)
-    elif tool == 'medusa':
+    elif args.tool == 'medusa':
         tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(
             contract)
     else:
-        raise ValueError('Unknown tool: {}'.format(tool))
+        raise ValueError('Unknown tool: {}'.format(args.tool))
 
-    if preprocess != '':
-        cmd(preprocess)
+    if args.preprocess != '':
+        cmd(args.preprocess)
     cmd(quote(mutant_cmd))
     start_time = timer()
     status, stdout, stderr = cmd(split(quote(tool_cmd)))
@@ -59,19 +62,23 @@ def run_benchmark(preprocess: str, tool: str, project: str, test: str, mutant: s
         f.close()
     result = {
         'job_id': job_id,
-        'tool': tool,
-        'project': project,
+        'tool': args.tool,
+        'project': args.project,
         'contract': contract,
-        'test': test,
-        'mutant': mutant,
+        'test': args.test,
+        'mutant': args.mutant,
         'time': end_time - start_time,
         'status': status,
         'output': output,
         'stdout': stdout,
         'stderr': stderr,
     }
-    cmd('git apply -R {}.patch'.format(tool))
-    put_object('{}{}.json'.format(prefix, job_id), json.dumps(result), local)
+    if args.postprocess != '':
+        cmd(args.postprocess)
+    cmd('git apply -R {}.patch'.format(args.tool))
+    put_object('{}{}.json'.format(args.prefix, job_id),
+               json.dumps(result), args.local)
+    logging.info("Done")
 
 
 def get_contract(test: str) -> str:

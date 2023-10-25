@@ -67,9 +67,15 @@ def mk_arg_parser() -> argparse.ArgumentParser:
 
     runner.add_argument(
         "--preprocess",
-        metavar="CMD",
+        metavar="PRE",
         default="",
         help="preprocess command, e.g. apply a patch before running a specific tool (default: '%(default)s')",
+    )
+    runner.add_argument(
+        "--postprocess",
+        metavar="POST",
+        default="",
+        help="postprocess command, e.g. revert patch (default: '%(default)s')",
     )
     runner.add_argument(
         "--tool",

@@ -7,10 +7,10 @@ from .cmd import cmd
 from .runner import get_functions
 
 
-def send_message(obj: json, local=False) -> str:
-    msg = json.dumps(obj)
+def send_message(args: obj) -> str:
+    msg = json.dumps(args.send_message)
     logging.info(msg)
-    if local:
+    if args.local:
         with open('queue.json', 'a+') as f:
             f.seek(0)
             f.close()
@@ -40,7 +40,7 @@ def send_message(obj: json, local=False) -> str:
     return message_id
 
 
-def full_benchmark(local=False) -> List[str]:
+def full_benchmark(args: obj) -> List[str]:
     # tools = ['halmos', 'foundry', 'echidna', 'medusa']
     # NOTE only halmos for now
     tools = ['halmos']
@@ -58,16 +58,18 @@ def full_benchmark(local=False) -> List[str]:
                 for mutant in mutants:
                     preprocess = 'git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
                         tool, mutant)
+                    postprocess = 'git checkout . && cd lib/abdk-libraries-solidity && git checkout . && cd ../../'
                     obj = {
                         "tool": tool,
                         "project": project,
                         'preprocess': preprocess,
+                        'postprocess': postprocess,
                         "test": test,
                         "timeout": 3600,
                         "mutant": mutant,
                         "prefix": "v2-"
                     }
-                    message_id = send_message(obj, local)
+                    message_id = send_message(obj, args.local)
                     ans.append(message_id)
         chdir('../..')
     print('{} benchmark jobs created'.format(len(ans)))

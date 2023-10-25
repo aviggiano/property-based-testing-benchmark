@@ -7,10 +7,10 @@ import boto3
 
 
 def handle_message(body: str, local: bool) -> str:
-    print("Received message: ", body)
+    logging.info("Received message: ", body)
     data = json.loads(body)
     if local:
-        cmd("python3 -m benchmark runner --preprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"],
+        cmd("python3 -m benchmark runner --preprocess {} --postprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"], data["postprocess"],
             data["tool"], data["project"], data["test"], data["mutant"], data["timeout"], data["prefix"]))
     else:
         ecs = boto3.client('ecs')
@@ -29,13 +29,14 @@ def handle_message(body: str, local: bool) -> str:
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", str(data["timeout"]), "--prefix", data["prefix"]],
+                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--postprocess", data["postprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", str(data["timeout"]), "--prefix", data["prefix"]],
                     }
                 ]
             },
             count=1,
             platformVersion='LATEST',
         )
+        print(response)
         tasks = response.get('tasks', [])
         if (len(tasks) > 0):
             task_arn = tasks.pop().get('taskArn', '')
@@ -43,6 +44,11 @@ def handle_message(body: str, local: bool) -> str:
             return task_arn
         else:
             return ''
+
+
+def delete_message(message):
+    logging.info("Deleting message: ", message.body)
+    message.delete()
 
 
 def get_queue_statistics(local=False):
@@ -66,12 +72,12 @@ def get_queue_statistics(local=False):
                      attributes.get('ApproximateNumberOfMessagesNotVisible')))
 
 
-def poll_messages(start_runner: json, queue_statistics: bool, local=False):
-    if queue_statistics:
+def poll_messages(args: obj):
+    if args.queue_statistics:
         return get_queue_statistics(local)
 
-    if start_runner is not None:
-        return handle_message(json.dumps(start_runner), local)
+    if args.start_runner is not None:
+        return handle_message(json.dumps(args.start_runner), args.local)
 
     if local:
         while True:
@@ -101,8 +107,8 @@ def poll_messages(start_runner: json, queue_statistics: bool, local=False):
                 try:
                     task_arn = handle_message(message.body, local)
                     if task_arn != '':
-                        message.delete()
+                        delete_message(message)
                 except Exception as e:
                     print(f"Exception while processing message: {repr(e)}")
-                    message.delete()
+                    delete_message(message)
                     continue

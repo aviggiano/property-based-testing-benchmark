@@ -16,16 +16,15 @@ def main():
 
     if args.cmd == 'producer':
         if args.full_benchmark:
-            full_benchmark(args.local)
+            full_benchmark(args)
         else:
-            send_message(args.send_message, args.local)
+            send_message(args)
 
     if args.cmd == 'consumer':
-        poll_messages(args.start_runner, args.queue_statistics, args.local)
+        poll_messages(args)
 
     if args.cmd == 'runner':
-        run_benchmark(args.preprocess, args.tool, args.project, args.test,
-                      args.mutant, args.timeout, args.prefix, args.local)
+        run_benchmark(args)
 
 
 if __name__ == "__main__":
