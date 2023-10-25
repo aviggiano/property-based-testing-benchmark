@@ -3,6 +3,7 @@ import logging
 import boto3
 import json
 import argparse
+import time
 from os import environ, chdir
 from .cmd import cmd
 from .runner import get_functions
@@ -42,6 +43,7 @@ def send_message(args: dict) -> str:
 
 
 def full_benchmark(args: dict) -> List[str]:
+    version = time.strftime("%s")
     # tools = ['halmos', 'foundry', 'echidna', 'medusa']
     # NOTE only halmos for now
     tools = ['halmos']
@@ -68,7 +70,7 @@ def full_benchmark(args: dict) -> List[str]:
                         "test": test,
                         "timeout": 3600,
                         "mutant": mutant,
-                        "prefix": "v3-"
+                        "prefix": "{}-".format(version)
                     }
                     print(args)
                     ns = argparse.Namespace()

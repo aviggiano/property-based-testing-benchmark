@@ -92,7 +92,7 @@ def poll_messages(args: dict):
                     queue = json.loads(content)
                     while len(queue) > 0:
                         msg = queue.pop()
-                        handle_message(msg, local)
+                        handle_message(msg, args.local)
                     f.truncate(0)
                 f.close()
             time.sleep(1)
@@ -107,7 +107,7 @@ def poll_messages(args: dict):
             )
             for message in messages:
                 try:
-                    task_arn = handle_message(message.body, local)
+                    task_arn = handle_message(message.body, args.local)
                     if task_arn != '':
                         delete_message(message)
                 except Exception:
