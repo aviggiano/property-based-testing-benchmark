@@ -112,9 +112,8 @@ def poll_messages(args: dict):
                 try:
                     task_arn = handle_message(message.body, args.local)
                     delete_message(message)
-                except RunTaskError:
-                    logging.info("Put message back to queue")
-                    raise RunTaskError()
+                except RunTaskException:
+                    logging.info("Retrying message after queue visibility timeout")
                 except Exception:
                     logging.info("Generic error")
                     delete_message(message)

@@ -45,13 +45,13 @@ def send_message(args: dict) -> str:
 def full_benchmark(args: dict) -> List[str]:
     version = time.strftime("%s")
     # tools = ['halmos', 'foundry', 'echidna', 'medusa']
-    # NOTE only halmos for now
     tools = ['halmos', 'foundry']
     projects = ['abdk-math-64x64']
     ans = []
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
+        functions = [f for f in functions if 'test_add' in f]
         all_mutants = get_all_mutants()
         for tool in tools:
             for test in functions:
