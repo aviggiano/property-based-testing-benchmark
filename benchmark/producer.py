@@ -44,9 +44,9 @@ def send_message(args: dict) -> str:
 
 def full_benchmark(args: dict) -> List[str]:
     version = time.strftime("%s")
-    tools = ['halmos', 'foundry', 'echidna', 'medusa']
+    # tools = ['halmos', 'foundry', 'echidna', 'medusa']
     # NOTE only halmos for now
-    # tools = ['halmos', 'foundry']
+    tools = ['halmos', 'foundry']
     projects = ['abdk-math-64x64']
     ans = []
     for project in projects:
@@ -66,7 +66,7 @@ def full_benchmark(args: dict) -> List[str]:
                         'preprocess': preprocess,
                         'postprocess': postprocess,
                         "test": test,
-                        "timeout": 600,
+                        "timeout": 3600,
                         "mutant": mutant,
                         "prefix": "{}-".format(version)
                     }
