@@ -4,7 +4,7 @@ from os import environ
 from shlex import quote
 
 
-def put_object(key, value, local=False):
+def put_object(key: str, value: str, local=False):
     logging.info('Saving to {}: {}'.format(key, value))
     if local:
         return open(key, 'w').write(value)

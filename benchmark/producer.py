@@ -68,7 +68,7 @@ def full_benchmark(args: dict) -> List[str]:
                         "test": test,
                         "timeout": 3600,
                         "mutant": mutant,
-                        "prefix": "v2-"
+                        "prefix": "v3-"
                     }
                     print(args)
                     ns = argparse.Namespace()

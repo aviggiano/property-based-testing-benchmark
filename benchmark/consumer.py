@@ -74,12 +74,12 @@ def get_queue_statistics(local=False):
 
 def poll_messages(args: dict):
     if args.queue_statistics:
-        return get_queue_statistics(local)
+        return get_queue_statistics(args.local)
 
     if args.start_runner is not None:
         return handle_message(json.dumps(args.start_runner), args.local)
 
-    if local:
+    if args.local:
         while True:
             with open('queue.json', 'a+') as f:
                 f.seek(0)
@@ -108,7 +108,7 @@ def poll_messages(args: dict):
                     task_arn = handle_message(message.body, local)
                     if task_arn != '':
                         delete_message(message)
-                except Exception as e:
-                    print(f"Exception while processing message: {repr(e)}")
+                except Exception:
+                    logging.info("Error")
                     delete_message(message)
                     continue
