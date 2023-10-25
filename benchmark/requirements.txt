@@ -4,4 +4,3 @@ numpy
 pandas
 seaborn
 scipy
-csv
