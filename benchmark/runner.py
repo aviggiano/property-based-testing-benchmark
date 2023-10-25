@@ -34,10 +34,10 @@ def run_benchmark(args: dict):
 
     tool_cmd = 'timeout -k 10 {} '.format(args.timeout)
     if args.tool == 'halmos':
-        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function {} --contract {}".format(
+        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {}".format(
             output_filename, quote(args.test), contract)
     elif args.tool == 'foundry':
-        tool_cmd += "forge test --match-test {}".format(quote(args.test))
+        tool_cmd += "forge test --match-test '\\b{}\\b'".format(quote(args.test))
     elif args.tool == 'echidna':
         # TODO update filtering for echidna
         # cmd('echo ' + '\'filterFunctions: [\"{}.{}\"]'.format(contract, function_with_args) + '\' >> config.yaml')
@@ -69,6 +69,8 @@ def run_benchmark(args: dict):
         'postprocess': args.postprocess,
         'tool_cmd': tool_cmd,
         'mutant': args.mutant,
+        'start_time': start_time,
+        'end_time': end_time,
         'time': end_time - start_time,
         'status': status,
         'output': output,

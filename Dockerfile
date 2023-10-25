@@ -70,7 +70,7 @@ RUN rm medusa-linux-x64.tar.gz
 RUN export PATH="$PATH:/usr/local/bin/medusa"
 
 RUN echo "Install halmos"
-RUN pip3 install git+https://github.com/a16z/halmos
+RUN pip3 install git+https://github.com/aviggiano/halmos
 
 COPY . .
 RUN cd benchmark && pip3 install -r requirements.txt
