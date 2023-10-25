@@ -48,7 +48,7 @@ def handle_message(body: str, local: bool) -> str:
 
 
 def delete_message(message):
-    logging.info("Deleting message: ", message.body)
+    logging.info("Deleting message: " + message.body)
     message.delete()
 
 
