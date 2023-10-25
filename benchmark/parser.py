@@ -25,6 +25,11 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         'runner', help="Runs a benchmark job and saves the output to the storage system")
     runner.set_defaults(cmd='runner')
 
+    # analyser
+    analyser = subparsers.add_parser(
+        'analyser', help="Analyses benchmark results")
+    analyser.set_defaults(cmd='analyser')
+
     # generic options
 
     parser.add_argument(
@@ -112,6 +117,15 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         metavar="PREFIX",
         default="",
         help="save output with a prefix (default: '%(default)s')",
+    )
+
+    # analyser options
+
+    analyser.add_argument(
+        "--prefix",
+        metavar="PREFIX",
+        default="",
+        help="load output with a prefix (default: '%(default)s')",
     )
 
     return parser

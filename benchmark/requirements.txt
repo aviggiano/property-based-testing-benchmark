@@ -1,1 +1,7 @@
 boto3
+matplotlib
+numpy
+pandas
+seaborn
+scipy
+csv

@@ -3,6 +3,7 @@
 import logging
 from .log import mk_log
 from .parser import mk_arg_parser
+from .analyser import analyse_results
 from .runner import run_benchmark
 from .consumer import poll_messages
 from .producer import send_message, full_benchmark
@@ -25,6 +26,9 @@ def main():
 
     if args.cmd == 'runner':
         run_benchmark(args)
+
+    if args.cmd == 'analyser':
+        analyse_results(args)
 
 
 if __name__ == "__main__":
