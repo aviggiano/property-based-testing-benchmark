@@ -44,16 +44,14 @@ def send_message(args: dict) -> str:
 
 def full_benchmark(args: dict) -> List[str]:
     version = time.strftime("%s")
-    # tools = ['halmos', 'foundry', 'echidna', 'medusa']
+    tools = ['halmos', 'foundry', 'echidna', 'medusa']
     # NOTE only halmos for now
-    tools = ['halmos']
+    # tools = ['halmos', 'foundry']
     projects = ['abdk-math-64x64']
     ans = []
     for project in projects:
         chdir('projects/{}'.format(project))
         functions = get_functions()
-        # NOTE get only test_add functions
-        functions = [f for f in functions if 'test_add' in f]
         all_mutants = get_all_mutants()
         for tool in tools:
             for test in functions:
@@ -68,7 +66,7 @@ def full_benchmark(args: dict) -> List[str]:
                         'preprocess': preprocess,
                         'postprocess': postprocess,
                         "test": test,
-                        "timeout": 3600,
+                        "timeout": 600,
                         "mutant": mutant,
                         "prefix": "{}-".format(version)
                     }
@@ -94,6 +92,6 @@ def get_mutants_by_test(all_mutants: List[str], test: str) -> List[str]:
     for mutant in all_mutants:
         if mutant in test:
             status, stdout, stderr = cmd(
-                "find mutants | grep {} | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(mutant))
+                "find mutants | grep '\\b{}\\b' | sed 's/mutants\/\(.*\)\.patch/\\1/'".format(mutant))
             mutants_by_test += stdout.split('\n')
     return list(set(mutants_by_test))
