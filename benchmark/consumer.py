@@ -12,8 +12,10 @@ def handle_message(body: str, local: bool) -> str:
     if local:
         cmd("python3 -m benchmark runner --preprocess {} --postprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"], data["postprocess"],
             data["tool"], data["project"], data["test"], data["mutant"], data["timeout"], data["prefix"]))
+        return ''
     else:
         ecs = boto3.client('ecs')
+        logging.info('Running task')
         response = ecs.run_task(
             cluster=environ['ECS_CLUSTER_NAME'],
             launchType='FARGATE',
