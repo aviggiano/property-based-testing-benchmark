@@ -7,7 +7,7 @@ import boto3
 
 
 def handle_message(body: str, local: bool) -> str:
-    logging.info("Received message: ", body)
+    logging.info("Received message: " + str(body))
     data = json.loads(body)
     if local:
         cmd("python3 -m benchmark runner --preprocess {} --postprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"], data["postprocess"],
@@ -38,7 +38,6 @@ def handle_message(body: str, local: bool) -> str:
             count=1,
             platformVersion='LATEST',
         )
-        print(response)
         tasks = response.get('tasks', [])
         if (len(tasks) > 0):
             task_arn = tasks.pop().get('taskArn', '')
@@ -110,6 +109,8 @@ def poll_messages(args: dict):
                     task_arn = handle_message(message.body, args.local)
                     if task_arn != '':
                         delete_message(message)
+                    else:
+                        time.sleep(10)
                 except Exception:
                     logging.info("Error")
                     delete_message(message)
