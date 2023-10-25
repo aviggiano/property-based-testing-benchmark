@@ -233,8 +233,6 @@ module "sqs" {
   source = "terraform-aws-modules/sqs/aws"
 
   name = "${local.namespace}-queue"
-
-  create_dlq = true
 }
 
 # * IAM User

@@ -6,6 +6,10 @@ import json
 import boto3
 
 
+class RunTaskException(Exception):
+    pass
+
+
 def handle_message(body: str, local: bool) -> str:
     logging.info("Received message: " + str(body))
     data = json.loads(body)
@@ -44,8 +48,7 @@ def handle_message(body: str, local: bool) -> str:
             logging.info(task_arn)
             return task_arn
         else:
-            logging.info('No task created')
-            return ''
+            raise RunTaskException('No tasks returned')
 
 
 def delete_message(message):
@@ -108,12 +111,11 @@ def poll_messages(args: dict):
             for message in messages:
                 try:
                     task_arn = handle_message(message.body, args.local)
-                    if task_arn != '':
-                        delete_message(message)
-                    else:
-                        logging.info('Sleeping for 10 seconds')
-                        time.sleep(10)
+                    delete_message(message)
+                except RunTaskError:
+                    logging.info("Put message back to queue")
+                    raise RunTaskError()
                 except Exception:
-                    logging.info("Error")
+                    logging.info("Generic error")
                     delete_message(message)
                     continue

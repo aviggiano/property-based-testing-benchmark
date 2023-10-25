@@ -39,11 +39,12 @@ def run_benchmark(args: dict):
     elif args.tool == 'foundry':
         tool_cmd += "forge test --match-test {}".format(quote(args.test))
     elif args.tool == 'echidna':
-        cmd('echo ' + '\'filterFunctions: [\"{}.setUp()\",\"{}.excludeSenders()\",\"{}.targetInterfaces()\",\"{}.targetSenders()\",\"{}targetContracts.()\",\"{}.targetArtifactSelectors()\",\"{}.targetArtifacts()\",\"{}.targetSelectors()\",\"{}.excludeArtifacts()\",\"{}.failed()\",\"{}.excludeContracts()\",\"{}.IS_TEST()\"]'.format(
-            contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract, contract) + '\' >> config.yaml')
+        # TODO update filtering for echidna
+        # cmd('echo ' + '\'filterFunctions: [\"{}.{}\"]'.format(contract, function_with_args) + '\' >> config.yaml')
         tool_cmd += "echidna . --contract {} --config config.yaml".format(
             contract)
     elif args.tool == 'medusa':
+        # TODO implement filtering for medusa
         tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(
             contract)
     else:

@@ -3,4 +3,4 @@ seqLen: 1
 testLimit: 4294967295
 shrinkLimit: 0
 stopOnFail: false
-filterBlacklist: true
+filterBlacklist: false
