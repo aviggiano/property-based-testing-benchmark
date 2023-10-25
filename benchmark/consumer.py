@@ -44,6 +44,7 @@ def handle_message(body: str, local: bool) -> str:
             logging.info(task_arn)
             return task_arn
         else:
+            logging.info('No task created')
             return ''
 
 
@@ -110,6 +111,7 @@ def poll_messages(args: dict):
                     if task_arn != '':
                         delete_message(message)
                     else:
+                        logging.info('Sleeping for 10 seconds')
                         time.sleep(10)
                 except Exception:
                     logging.info("Error")
