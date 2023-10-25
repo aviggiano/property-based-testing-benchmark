@@ -15,12 +15,13 @@ def run_benchmark(args: dict):
     chdir('projects/{}'.format(quote(args.project)))
     contract = get_contract(args.test)
 
-    for fun in get_functions():
-        if fun.startswith(args.test) == False:
-            # https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
-            # NOTE: this only works on GNU sed
-            cmd("find test -type f -exec sed -i -e 's/\(" +
-                fun + "\\b.*\)public/\\1private/' \{\} \;")
+    # FIXME use filterFunctions
+    # for fun in get_functions():
+    #     if fun.startswith(args.test) == False:
+    #         # https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
+    #         # NOTE: this only works on GNU sed
+    #         cmd("find test -type f -exec sed -i -e 's/\(" +
+    #             fun + "\\b.*\)public/\\1private/' \{\} \;")
 
     output_filename = '{}-output.json'.format(job_id)
     output = ''
