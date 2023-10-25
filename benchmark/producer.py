@@ -57,7 +57,7 @@ def full_benchmark(args: dict) -> List[str]:
             for test in functions:
                 mutants = get_mutants_by_test(all_mutants, test)
                 for mutant in mutants:
-                    preprocess = 'git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
+                    preprocess = 'forge clean && git apply {}.patch && cd lib/abdk-libraries-solidity && git apply ../../mutants/{}.patch && cd ../../'.format(
                         tool, mutant)
                     postprocess = 'git checkout . && cd lib/abdk-libraries-solidity && git checkout . && cd ../../'
                     msg = {

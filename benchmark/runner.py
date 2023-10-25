@@ -65,6 +65,8 @@ def run_benchmark(args: dict):
         'project': args.project,
         'contract': contract,
         'test': args.test,
+        'preprocess': args.preprocess,
+        'postprocess': args.postprocess,
         'tool_cmd': tool_cmd,
         'mutant': args.mutant,
         'time': end_time - start_time,

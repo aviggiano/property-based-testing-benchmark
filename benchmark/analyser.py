@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from .storage import get_object, list_objects
 import csv
@@ -13,6 +14,7 @@ import json
 image_filename = '/tmp/final.png'
 csv_filename = '/tmp/final.csv'
 
+
 def analyse_results(args: dict):
     if args.load_from_csv:
         objects = load_csv()
@@ -26,6 +28,9 @@ def analyse_results(args: dict):
         save_csv(objects)
 
     df = pd.DataFrame(objects)
+
+    fuzzer_misses(df)
+
     # Sort the DataFrame by 'mutant'
     df = df.sort_values('mutant')
 
@@ -64,6 +69,9 @@ def analyse_results(args: dict):
 
     # Show legend
     ax.legend()
+
+    # Convert 'time' to float
+    df['time'] = df['time'].astype(float)
 
     # Find the lower limit for y
     y_lower = df['time'].min() / 10  # Adjust this divisor to suit your needs
@@ -135,6 +143,7 @@ def save_csv(objects: List[dict]):
         for row in objects:
             writer.writerow(row)
 
+
 def load_csv() -> List[dict]:
     ans = []
     with open(csv_filename, "r+", newline="") as f:
@@ -143,3 +152,13 @@ def load_csv() -> List[dict]:
             ans.append(row)
     return ans
 
+
+def fuzzer_misses(df):
+    logging.info("fuzzer misses (halmos proved FALSE but fuzzer didn't)")
+    grouped = df.groupby(['project', 'contract', 'test', 'mutant'])
+
+    for name, group in grouped:
+        halmos_proved_false = group[(
+            group['tool'] == 'halmos') & (group['status'] == '1')]
+        if len(halmos_proved_false) > 0:
+            print(group[['tool', 'test', 'mutant', 'status']])
