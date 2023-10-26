@@ -11,13 +11,16 @@ import seaborn as sns
 from scipy.stats import mannwhitneyu
 import json
 
-image_filename = '/tmp/final.png'
-csv_filename = '/tmp/final.csv'
-
 
 def analyse_results(args: dict):
+    x_axis = 'test'
+    y_axis = 'time'
+
+    image_filename = '/tmp/final_{}_by_{}.png'.format(x_axis, y_axis)
+    csv_filename = '/tmp/final.csv'
+
     if args.load_from_csv:
-        objects = load_csv()
+        objects = load_csv(csv_filename)
     else:
         keys = list_objects(args.prefix, args.local)
         objects = []
@@ -25,7 +28,7 @@ def analyse_results(args: dict):
             data = get_object(key, args.local)
             obj = json.loads(data)
             objects.append(obj)
-        save_csv(objects)
+        save_csv(csv_filename, objects)
 
     df = pd.DataFrame(objects)
 
@@ -33,9 +36,6 @@ def analyse_results(args: dict):
     df['time'] = df['time'].astype(float)
 
     fuzzer_misses(df)
-
-    x_axis = 'mutant'
-    y_axis = 'time'
 
     # Sort the DataFrame by 'mutant'
     df = df.sort_values(x_axis)
@@ -125,7 +125,7 @@ def analyse_results(args: dict):
 
     # Save the plot to a PNG file
     plt.tight_layout()
-    plt.savefig("/tmp/final.png")
+    plt.savefig(image_filename)
 
 
 def get_color(obj):
@@ -137,10 +137,10 @@ def get_color(obj):
         raise Exception("Object type not recognized")
 
 
-def save_csv(objects: List[dict]):
+def save_csv(filename: str, objects: List[dict]):
     fieldnames = ['job_id', 'tool', 'project', 'contract',
                   'test', 'tool_cmd', 'mutant', 'time', 'status']
-    with open(csv_filename, "w+", newline="") as csv_file:
+    with open(filename, "w+", newline="") as csv_file:
         writer = csv.DictWriter(
             csv_file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()  # Write the header
@@ -148,9 +148,9 @@ def save_csv(objects: List[dict]):
             writer.writerow(row)
 
 
-def load_csv() -> List[dict]:
+def load_csv(filename: str) -> List[dict]:
     ans = []
-    with open(csv_filename, "r+", newline="") as f:
+    with open(filename, "r+", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
             ans.append(row)
