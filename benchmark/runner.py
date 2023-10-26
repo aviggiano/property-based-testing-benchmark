@@ -37,7 +37,8 @@ def run_benchmark(args: dict):
         tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {}".format(
             output_filename, quote(args.test), contract)
     elif args.tool == 'foundry':
-        tool_cmd += "forge test --match-test '\\b{}\\b'".format(quote(args.test))
+        tool_cmd += "forge test --match-test '\\b{}\\b'".format(
+            quote(args.test))
     elif args.tool == 'echidna':
         # TODO update filtering for echidna
         # cmd('echo ' + '\'filterFunctions: [\"{}.{}\"]'.format(contract, function_with_args) + '\' >> config.yaml')

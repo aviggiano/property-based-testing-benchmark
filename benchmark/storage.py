@@ -15,7 +15,7 @@ def put_object(key: str, value: str, local=False):
 
 
 def get_object(key: str, local=False):
-    logging.info('Reading {}'.format(key))
+    logging.info('Downloading {}'.format(key))
     if local:
         return open(key, 'r+').read(value)
     else:

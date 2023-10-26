@@ -29,15 +29,21 @@ def analyse_results(args: dict):
 
     df = pd.DataFrame(objects)
 
+    # Convert 'time' to float
+    df['time'] = df['time'].astype(float)
+
     fuzzer_misses(df)
 
+    x_axis = 'mutant'
+    y_axis = 'time'
+
     # Sort the DataFrame by 'mutant'
-    df = df.sort_values('mutant')
+    df = df.sort_values(x_axis)
 
     # Create a boxplot
     fig, ax = plt.subplots(figsize=(15, 8))
 
-    mutants = df['mutant'].unique()
+    mutants = df[x_axis].unique()
 
     # Add alternating background colors
     for i in range(len(mutants)):
@@ -45,11 +51,11 @@ def analyse_results(args: dict):
             ax.axvspan(i-0.5, i+0.5, facecolor='lightgrey', zorder=0)
 
     # Using seaborn to create boxplot as it supports creating multiple boxes for each category (tool for each mutant) directly
-    sns.boxplot(data=df, x='mutant', y='time', hue='tool', ax=ax,
+    sns.boxplot(data=df, x=x_axis, y=y_axis, hue='tool', ax=ax,
                 flierprops=dict(markerfacecolor='gray', markersize=5), zorder=2)
 
     # Add stripplot to plot datapoints
-    sns.stripplot(data=df, x='mutant', y='time', hue='tool',
+    sns.stripplot(data=df, x=x_axis, y=y_axis, hue='tool',
                   dodge=True, linewidth=0.5, palette='dark', ax=ax, zorder=1)
 
     # Fetch legend handles and labels
@@ -60,9 +66,9 @@ def analyse_results(args: dict):
         handles, labels) if label in df['tool'].unique()}
 
     # Set labels and title
-    ax.set_xlabel('Mutant')
+    ax.set_xlabel(x_axis)
     ax.set_ylabel('Time to break invariants (seconds)')
-    ax.set_title('Time to break invariants per Mutant')
+    ax.set_title('Time to break invariants per {}'.format(x_axis))
 
     # Set y-axis to logarithmic scale
     ax.set_yscale("log")
@@ -70,11 +76,8 @@ def analyse_results(args: dict):
     # Show legend
     ax.legend()
 
-    # Convert 'time' to float
-    df['time'] = df['time'].astype(float)
-
     # Find the lower limit for y
-    y_lower = df['time'].min() / 10  # Adjust this divisor to suit your needs
+    y_lower = df[y_axis].min() / 10  # Adjust this divisor to suit your needs
 
     # Set the y-axis limit
     ax.set_ylim(bottom=y_lower)
@@ -89,35 +92,36 @@ def analyse_results(args: dict):
                 tool2 = tools[j]
 
                 data1 = df[(df['tool'] == tool1) & (
-                    df['mutant'] == mutant)]['time']
+                    df[x_axis] == mutant)][y_axis]
                 data2 = df[(df['tool'] == tool2) & (
-                    df['mutant'] == mutant)]['time']
+                    df[x_axis] == mutant)][y_axis]
 
-                # Perform the test
-                stat, p = mannwhitneyu(data1, data2)
+                if len(data1) != 0 and len(data2) != 0:
+                    # Perform the test
+                    stat, p = mannwhitneyu(data1, data2)
 
-                if p > 0.05:
-                    winner = 'N/A'
-                    color = 'gray'  # Choose a default color when there's no significant difference
-                else:
-                    if data1.median() < data2.median():
-                        winner = tool1
+                    if p > 0.05:
+                        winner = 'N/A'
+                        color = 'gray'  # Choose a default color when there's no significant difference
                     else:
-                        winner = tool2
-                    # Get the color of the winning tool
-                    color = tool_colors[winner]
-                print('mutant {} winner {}'.format(mutant, winner))
-                # Format p-value to string rounded to 2 decimal places
-                p_str = "{:.2f}".format(p)
+                        if data1.median() < data2.median():
+                            winner = tool1
+                        else:
+                            winner = tool2
+                        # Get the color of the winning tool
+                        color = tool_colors[winner]
+                    print('winner {} {}'.format(mutant, winner))
+                    # Format p-value to string rounded to 2 decimal places
+                    p_str = "{:.2f}".format(p)
 
-                # Calculate the position for the annotation, position it in the center of each mutant group
-                mutant_index = list(df['mutant'].unique()).index(mutant)
-                # Annotate the p-value on the chart
-                ax.text(mutant_index, 0.05, f'p={p:0.2f}',
-                        ha='center',
-                        va='top',
-                        transform=ax.get_xaxis_transform(),
-                        bbox=dict(facecolor=color, alpha=0.5, edgecolor='black', linewidth=1))
+                    # Calculate the position for the annotation, position it in the center of each mutant group
+                    mutant_index = list(df[x_axis].unique()).index(mutant)
+                    # Annotate the p-value on the chart
+                    ax.text(mutant_index, 0.05, f'p={p:0.2f}',
+                            ha='center',
+                            va='top',
+                            transform=ax.get_xaxis_transform(),
+                            bbox=dict(facecolor=color, alpha=0.5, edgecolor='black', linewidth=1))
 
     # Save the plot to a PNG file
     plt.tight_layout()
