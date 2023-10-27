@@ -19,3 +19,9 @@
 [submodule "projects/abdk-math-64x64/lib/properties"]
 	path = projects/abdk-math-64x64/lib/properties
 	url = https://github.com/crytic/properties
+[submodule "projects/dai-certora/lib/forge-std"]
+	path = projects/dai-certora/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "projects/dai-certora/lib/halmos-cheatcodes"]
+	path = projects/dai-certora/lib/halmos-cheatcodes
+	url = https://github.com/a16z/halmos-cheatcodes
