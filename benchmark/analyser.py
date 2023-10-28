@@ -26,6 +26,7 @@ def analyse_results(args: dict):
         objects = []
         for key in keys:
             data = get_object(key, args.local)
+            save_file('/tmp/{}'.format(key), data.decode('utf-8'))
             obj = json.loads(data)
             objects.append(obj)
         save_csv(csv_filename, objects)
@@ -35,7 +36,7 @@ def analyse_results(args: dict):
     # Convert 'time' to float
     df['time'] = df['time'].astype(float)
 
-    fuzzer_misses(df)
+    print_fuzzer_misses(df)
 
     # Sort the DataFrame by 'mutant'
     df = df.sort_values(x_axis)
@@ -157,8 +158,8 @@ def load_csv(filename: str) -> List[dict]:
     return ans
 
 
-def fuzzer_misses(df):
-    logging.info("fuzzer misses (halmos proved FALSE but fuzzer didn't)")
+def print_fuzzer_misses(df):
+    logging.info("start fuzzer misses (halmos proved FALSE but fuzzer didn't)")
     grouped = df.groupby(['project', 'contract', 'test', 'mutant'])
 
     for name, group in grouped:
@@ -166,3 +167,10 @@ def fuzzer_misses(df):
             group['tool'] == 'halmos') & (group['status'] == '1')]
         if len(halmos_proved_false) > 0:
             print(group[['tool', 'test', 'mutant', 'status']])
+    logging.info("end fuzzer misses")
+
+def save_file(filename: str, data: str):
+    with open(filename, "w+") as f:
+        f.seek(0)
+        f.write(data)
+        f.close()
