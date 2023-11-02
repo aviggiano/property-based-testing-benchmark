@@ -28,10 +28,6 @@ def run_benchmark(args: dict):
     with open(output_filename, 'a+') as f:
         f.close()
 
-    mutant_cmd = 'true'
-    if args.mutant != '':
-        mutant_cmd = 'git apply mutants/{}.patch'.format(quote(args.mutant))
-
     tool_cmd = 'timeout -k 10 {} '.format(args.timeout)
     if args.tool == 'halmos':
         tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {}".format(
@@ -53,7 +49,6 @@ def run_benchmark(args: dict):
 
     if args.preprocess != '':
         cmd(args.preprocess)
-    cmd(quote(mutant_cmd))
     start_time = timer()
     status, stdout, stderr = cmd(split(quote(tool_cmd)))
     end_time = timer()
