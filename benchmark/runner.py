@@ -11,6 +11,7 @@ from timeit import default_timer as timer
 
 def run_benchmark(args: dict):
     job_id = str(uuid.uuid4())
+    logging.info('Running benchmark {}'.format(job_id))
 
     chdir('projects/{}'.format(quote(args.project)))
     contract = get_contract(args.test)
@@ -82,12 +83,14 @@ def run_benchmark(args: dict):
 
 
 def get_contract(test: str) -> str:
+    logging.info('Getting contract for test {}'.format(test))
     status, stdout, stderr = cmd(
         "grep -r -l {} test | sed 's/.*\/\(.*\)\.t\.sol/\\1/g'".format(quote(test)))
     return stdout
 
 
 def get_functions() -> List[str]:
+    logging.info('Getting functions')
     status, stdout, stderr = cmd(
         "grep -ro 'test_[a-zA-Z0-9_]*' test | sed 's/.*://g'")
     return stdout.split('\n')
