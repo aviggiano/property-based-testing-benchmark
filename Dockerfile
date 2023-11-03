@@ -9,13 +9,20 @@ WORKDIR /home/ubuntu
 RUN echo "Install OS libraries"
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl git gcc make python3-pip unzip jq wget tar
+RUN apt-get install -y curl gcc make python3-pip unzip jq wget tar
 
 RUN echo "Install Python 3.11"
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get update
 RUN apt-get install -y python3.11
+
+RUN echo "Install Git"
+RUN add-apt-repository -y ppa:git-core/ppa
+RUN apt-get update
+RUN apt-get install -y git
+
+
 
 # RUN echo "Install Node.js"
 # ENV NODE_VERSION=18.18.2
