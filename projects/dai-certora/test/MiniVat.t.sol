@@ -23,4 +23,44 @@ contract MiniVatTest is Test {
         try minivat.init() {} catch {}
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
+
+    function test_minivat_counterexample_2() external {
+        bool success;
+
+        bytes4 first = minivat.init.selector;
+        bytes4 second = minivat.init.selector;
+        bytes4 third = minivat.frob.selector;
+        bytes4 fourth = minivat.fold.selector;
+
+        (success, ) = address(minivat).call(abi.encodeWithSelector(first));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(second, 10 ** 18));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(third, -10 ** 27));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
+        vm.assume(success);
+        // assert(minivat.debt() == minivat.Art() * minivat.rate());
+    }
+
+    function test_minivat_seq(
+        bytes4 first,
+        bytes4 second,
+        bytes4 third,
+        bytes4 fourth
+    ) external {
+        bool success;
+        // x = 10 ** 18
+        // y = -10 ** 27
+        (success, ) = address(minivat).call(abi.encodeWithSelector(first));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(second, 10 ** 18));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(third, -10 ** 27));
+        vm.assume(success);
+        (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
+        vm.assume(success);
+
+        assert(minivat.debt() == minivat.Art() * minivat.rate());
+    }
 }
