@@ -6,7 +6,7 @@ import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 
 import "../src/MiniVat.sol";
 
-contract MiniVatTest is Test {
+contract MiniVatTest is Test, SymTest {
     MiniVat minivat;
 
     function setUp() public {
@@ -34,9 +34,13 @@ contract MiniVatTest is Test {
 
         (success, ) = address(minivat).call(abi.encodeWithSelector(first));
         vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(second, 10 ** 18));
+        (success, ) = address(minivat).call(
+            abi.encodeWithSelector(second, 10 ** 18)
+        );
         vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(third, -10 ** 27));
+        (success, ) = address(minivat).call(
+            abi.encodeWithSelector(third, -10 ** 27)
+        );
         vm.assume(success);
         (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
         vm.assume(success);
@@ -50,17 +54,62 @@ contract MiniVatTest is Test {
         bytes4 fourth
     ) external {
         bool success;
-        // x = 10 ** 18
-        // y = -10 ** 27
+
         (success, ) = address(minivat).call(abi.encodeWithSelector(first));
         vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(second, 10 ** 18));
+        (success, ) = address(minivat).call(
+            abi.encodeWithSelector(second, 10 ** 18)
+        );
         vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(third, -10 ** 27));
+        (success, ) = address(minivat).call(
+            abi.encodeWithSelector(third, -10 ** 27)
+        );
         vm.assume(success);
         (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
         vm.assume(success);
 
         assert(minivat.debt() == minivat.Art() * minivat.rate());
+    }
+
+    function test_minivat_seq_full_symbolic(
+        bytes4 first,
+        bytes4 second,
+        bytes4 third,
+        bytes4 fourth
+    ) external {
+        bool success;
+
+        (success, ) = address(minivat).call(_calldataFor(first));
+        vm.assume(success);
+        (success, ) = address(minivat).call(_calldataFor(second));
+        vm.assume(success);
+        (success, ) = address(minivat).call(_calldataFor(third));
+        vm.assume(success);
+        (success, ) = address(minivat).call(_calldataFor(fourth));
+        vm.assume(success);
+
+        assert(minivat.debt() == minivat.Art() * minivat.rate());
+    }
+
+    function _calldataFor(
+        bytes4 selector
+    ) internal view returns (bytes memory) {
+        if (selector == minivat.init.selector) {
+            return abi.encodeWithSelector(selector);
+        } else if (selector == minivat.move.selector) {
+            return
+                abi.encodeWithSelector(
+                    selector,
+                    svm.createAddress("dst"),
+                    svm.createInt256("wad")
+                );
+        } else if (selector == minivat.frob.selector) {
+            return abi.encodeWithSelector(selector, svm.createInt256("dart"));
+        } else if (selector == minivat.fold.selector) {
+            return abi.encodeWithSelector(selector, svm.createInt256("delta"));
+        } else {
+            revert();
+            // return svm.createBytes(1024, "data");
+        }
     }
 }
