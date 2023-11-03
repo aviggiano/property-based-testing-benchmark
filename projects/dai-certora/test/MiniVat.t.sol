@@ -21,6 +21,7 @@ contract MiniVatTest is Test, SymTest {
         try minivat.frob(x) {} catch {}
         try minivat.fold(y) {} catch {}
         try minivat.init() {} catch {}
+
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
@@ -45,15 +46,15 @@ contract MiniVatTest is Test, SymTest {
 
 
     function test_minivat_seq_full_symbolic(
-        bytes4 first,
-        bytes4 second,
-        bytes4 third,
-        bytes4 fourth
+        bytes4 sel1,
+        bytes4 sel2,
+        bytes4 sel3,
+        bytes4 sel4
     ) public {
-        assumeSuccessfulCall(address(minivat), _calldataFor(first));
-        assumeSuccessfulCall(address(minivat), _calldataFor(second));
-        assumeSuccessfulCall(address(minivat), _calldataFor(third));
-        assumeSuccessfulCall(address(minivat), _calldataFor(fourth));
+        assumeSuccessfulCall(address(minivat), _calldataFor(sel1));
+        assumeSuccessfulCall(address(minivat), _calldataFor(sel2));
+        assumeSuccessfulCall(address(minivat), _calldataFor(sel3));
+        assumeSuccessfulCall(address(minivat), _calldataFor(sel4));
 
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
