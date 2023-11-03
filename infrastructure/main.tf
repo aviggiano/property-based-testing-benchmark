@@ -64,6 +64,7 @@ module "ecr" {
 resource "null_resource" "docker_build" {
   # https://stackoverflow.com/questions/68658353/push-docker-image-to-ecr-using-terraform
   # https://stackoverflow.com/questions/75131872/error-failed-to-solve-failed-commit-on-ref-unexpected-status-400-bad-reques
+  # https://stackoverflow.com/a/35616001/1849920
   provisioner "local-exec" {
     command = "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${module.ecr.repository_url} && docker buildx build --platform linux/amd64 -t ${module.ecr.repository_url}:latest .. --push --provenance=false"
   }

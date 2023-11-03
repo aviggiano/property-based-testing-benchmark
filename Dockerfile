@@ -9,10 +9,9 @@ WORKDIR /home/ubuntu
 RUN echo "Install OS libraries"
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y curl gcc make python3-pip unzip jq wget tar
+RUN apt-get install -y curl gcc make python3-pip unzip jq wget tar software-properties-common
 
 RUN echo "Install Python 3.11"
-RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get update
 RUN apt-get install -y python3.11

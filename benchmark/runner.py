@@ -76,7 +76,6 @@ def run_benchmark(args: dict):
     }
     if args.postprocess != '':
         cmd(args.postprocess)
-    cmd('git apply -R {}.patch'.format(args.tool))
     put_object('{}{}.json'.format(args.prefix, job_id),
                json.dumps(result), args.local)
     logging.info("Done")
