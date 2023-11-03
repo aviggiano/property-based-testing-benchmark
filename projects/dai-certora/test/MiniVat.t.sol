@@ -24,69 +24,36 @@ contract MiniVatTest is Test, SymTest {
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
-    function test_minivat_counterexample_2() external {
-        bool success;
-
-        bytes4 first = minivat.init.selector;
-        bytes4 second = minivat.init.selector;
-        bytes4 third = minivat.frob.selector;
-        bytes4 fourth = minivat.fold.selector;
-
-        (success, ) = address(minivat).call(abi.encodeWithSelector(first));
-        vm.assume(success);
-        (success, ) = address(minivat).call(
-            abi.encodeWithSelector(second, 10 ** 18)
+    function test_minivat_counterexample_2() public {
+        test_minivat_seq_full_symbolic(
+            minivat.init.selector,
+            minivat.frob.selector,
+            minivat.fold.selector,
+            minivat.init.selector
         );
-        vm.assume(success);
-        (success, ) = address(minivat).call(
-            abi.encodeWithSelector(third, -10 ** 27)
-        );
-        vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
-        vm.assume(success);
-        // assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
-    function test_minivat_seq(
-        bytes4 first,
-        bytes4 second,
-        bytes4 third,
-        bytes4 fourth
-    ) external {
-        bool success;
 
-        (success, ) = address(minivat).call(abi.encodeWithSelector(first));
-        vm.assume(success);
-        (success, ) = address(minivat).call(
-            abi.encodeWithSelector(second, 10 ** 18)
-        );
-        vm.assume(success);
-        (success, ) = address(minivat).call(
-            abi.encodeWithSelector(third, -10 ** 27)
-        );
-        vm.assume(success);
-        (success, ) = address(minivat).call(abi.encodeWithSelector(fourth));
-        vm.assume(success);
+    function test_minivat_seq_symbolic_selectors(bytes4 sel1, bytes4 sel2, bytes4 sel3, bytes4 sel4) public {
+        assumeSuccessfulCall(address(minivat), abi.encodeWithSelector(sel1));
+        assumeSuccessfulCall(address(minivat), abi.encodeWithSelector(sel2, 10 ** 18));
+        assumeSuccessfulCall(address(minivat), abi.encodeWithSelector(sel3, -10 ** 27));
+        assumeSuccessfulCall(address(minivat), abi.encodeWithSelector(sel4));
 
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
+
 
     function test_minivat_seq_full_symbolic(
         bytes4 first,
         bytes4 second,
         bytes4 third,
         bytes4 fourth
-    ) external {
-        bool success;
-
-        (success, ) = address(minivat).call(_calldataFor(first));
-        vm.assume(success);
-        (success, ) = address(minivat).call(_calldataFor(second));
-        vm.assume(success);
-        (success, ) = address(minivat).call(_calldataFor(third));
-        vm.assume(success);
-        (success, ) = address(minivat).call(_calldataFor(fourth));
-        vm.assume(success);
+    ) public {
+        assumeSuccessfulCall(address(minivat), _calldataFor(first));
+        assumeSuccessfulCall(address(minivat), _calldataFor(second));
+        assumeSuccessfulCall(address(minivat), _calldataFor(third));
+        assumeSuccessfulCall(address(minivat), _calldataFor(fourth));
 
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
@@ -111,5 +78,11 @@ contract MiniVatTest is Test, SymTest {
             revert();
             // return svm.createBytes(1024, "data");
         }
+    }
+
+    function assumeSuccessfulCall(address target, bytes memory data) internal {
+        bool success;
+        (success, ) = target.call(data);
+        vm.assume(success);
     }
 }
