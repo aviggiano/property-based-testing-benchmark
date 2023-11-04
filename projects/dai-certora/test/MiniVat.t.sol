@@ -25,8 +25,8 @@ contract MiniVatTest is Test, SymTest {
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
-    function test_minivat_counterexample_2() public {
-        test_minivat_seq_full_symbolic(
+    function check_minivat_counterexample_2() public {
+        check_minivat_seq_full_symbolic(
             minivat.init.selector,
             minivat.frob.selector,
             minivat.fold.selector,
@@ -35,12 +35,10 @@ contract MiniVatTest is Test, SymTest {
     }
 
     function test_minivat_counterexample_3() public {
-        test_minivat_seq_full_symbolic(
-            minivat.frob.selector,
-            minivat.frob.selector,
-            minivat.frob.selector,
-            minivat.init.selector
-        );
+        bytes4[] memory selectors = new bytes4[](2);
+        selectors[0] = minivat.frob.selector;
+        selectors[1] = minivat.init.selector;
+        test_minivat_n_symbolic_selectors(selectors);
     }
 
     function test_minivat_seq_symbolic_selectors(
@@ -62,7 +60,23 @@ contract MiniVatTest is Test, SymTest {
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
-    function test_minivat_seq_full_symbolic(
+    function test_minivat_n_symbolic_selectors(
+        bytes4[] memory selectors
+    ) public {
+        for (uint256 i = 0; i < selectors.length; ++i) {
+            assumeValidSelector(selectors[i]);
+            if (selectors[i] != bytes4(0)) {
+                assumeSuccessfulCall(
+                    address(minivat),
+                    concreteCalldataFor(selectors[i])
+                );
+            }
+        }
+
+        assert(minivat.debt() == minivat.Art() * minivat.rate());
+    }
+
+    function check_minivat_seq_full_symbolic(
         bytes4 sel1,
         bytes4 sel2,
         bytes4 sel3,
@@ -76,15 +90,13 @@ contract MiniVatTest is Test, SymTest {
         assert(minivat.debt() == minivat.Art() * minivat.rate());
     }
 
-    function test_minivat_n_symbolic_selectors() public {
-        uint256 n = 4;
-
-        for (uint256 i = 0; i < n; ++i) {
-            bytes4 selector = svm.createBytes4(string.concat("sel", str(i)));
-            if (selector != 0xffffffff) {
+    function check_minivat_n_full_symbolic(bytes4[] memory selectors) public {
+        for (uint256 i = 0; i < selectors.length; ++i) {
+            assumeValidSelector(selectors[i]);
+            if (selectors[i] != bytes4(0)) {
                 assumeSuccessfulCall(
                     address(minivat),
-                    concreteCalldataFor(selector)
+                    calldataFor(selectors[i])
                 );
             }
         }
@@ -107,8 +119,7 @@ contract MiniVatTest is Test, SymTest {
         } else if (selector == minivat.fold.selector) {
             return abi.encodeWithSelector(selector, svm.createInt256("delta"));
         } else {
-            revert();
-            // return svm.createBytes(1024, "data");
+            return svm.createBytes(1024, "data");
         }
     }
 
@@ -128,12 +139,13 @@ contract MiniVatTest is Test, SymTest {
         }
     }
 
-    function assumeValidSelector(bytes4 selector) internal {
+    function assumeValidSelector(bytes4 selector) internal view {
         vm.assume(
             selector == minivat.init.selector ||
                 selector == minivat.frob.selector ||
                 selector == minivat.fold.selector ||
-                selector == minivat.move.selector
+                selector == minivat.move.selector ||
+                selector == bytes4(0)
         );
     }
 
@@ -141,14 +153,5 @@ contract MiniVatTest is Test, SymTest {
         bool success;
         (success, ) = target.call(data);
         vm.assume(success);
-    }
-
-    function str(uint256 i) internal returns (string memory) {
-        return
-            i == 0 ? "0" : i == 1 ? "1" : i == 2 ? "2" : i == 3 ? "3" : i == 4
-                ? "4"
-                : i == 5
-                ? "5"
-                : "6+";
     }
 }
