@@ -169,6 +169,7 @@ def print_fuzzer_misses(df):
             print(group[['tool', 'test', 'mutant', 'status']])
     logging.info("end fuzzer misses")
 
+
 def save_file(filename: str, data: str):
     with open(filename, "w+") as f:
         f.seek(0)

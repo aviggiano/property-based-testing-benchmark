@@ -31,20 +31,20 @@ def run_benchmark(args: dict):
 
     tool_cmd = 'timeout -k 10 {} '.format(args.timeout)
     if args.tool == 'halmos':
-        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {}".format(
-            output_filename, quote(args.test), contract)
+        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {} {}".format(
+            output_filename, quote(args.test), contract, quote(args.extra_args))
     elif args.tool == 'foundry':
-        tool_cmd += "forge test --match-test '\\b{}\\b'".format(
-            quote(args.test))
+        tool_cmd += "forge test --match-test '\\b{}\\b' {}".format(
+            quote(args.test), quote(args.extra_args))
     elif args.tool == 'echidna':
         # TODO update filtering for echidna
         # cmd('echo ' + '\'filterFunctions: [\"{}.{}\"]'.format(contract, function_with_args) + '\' >> config.yaml')
-        tool_cmd += "echidna . --contract {} --config config.yaml".format(
-            contract)
+        tool_cmd += "echidna . --contract {} --config config.yaml {}".format(
+            contract, quote(args.extra_args))
     elif args.tool == 'medusa':
         # TODO implement filtering for medusa
-        tool_cmd += "medusa fuzz --no-color --target-contracts {}".format(
-            contract)
+        tool_cmd += "medusa fuzz --no-color --target-contracts {} {}".format(
+            contract, quote(args.extra_args))
     else:
         raise ValueError('Unknown tool: {}'.format(args.tool))
 
@@ -64,6 +64,7 @@ def run_benchmark(args: dict):
         'test': args.test,
         'preprocess': args.preprocess,
         'postprocess': args.postprocess,
+        'extra_args': args.extra_args,
         'tool_cmd': tool_cmd,
         'mutant': args.mutant,
         'start_time': start_time,

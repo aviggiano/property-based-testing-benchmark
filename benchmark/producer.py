@@ -42,7 +42,7 @@ def send_message(args: dict) -> str:
     return message_id
 
 
-def full_benchmark(args: dict) -> List[str]:
+def full_benchmark_abdk_math_64x64(args: dict) -> List[str]:
     version = time.strftime("%s")
     # tools = ['halmos', 'foundry', 'echidna', 'medusa']
     tools = ['halmos', 'foundry']
@@ -68,6 +68,7 @@ def full_benchmark(args: dict) -> List[str]:
                         "project": project,
                         'preprocess': preprocess,
                         'postprocess': postprocess,
+                        'extra_args': '',
                         "test": test,
                         "timeout": 3600,
                         "mutant": mutant,
@@ -80,6 +81,32 @@ def full_benchmark(args: dict) -> List[str]:
                     message_id = send_message(ns)
                     ans.append(message_id)
         chdir('../..')
+    print('{} benchmark jobs created'.format(len(ans)))
+    return ans
+
+
+def full_benchmark(args: dict) -> List[str]:
+    version = time.strftime("%s")
+    ans = []
+    loops = ['2', '3', '4', '5']
+    for loop in loops:
+        msg = {
+            "tool": 'halmos',
+            "project": 'dai-certora',
+            'preprocess': '',
+            'postprocess': '',
+            'extra_args': '--loop {}'.format(loop),
+            "test": 'check_minivat_n_full_symbolic',
+            "timeout": 3600,
+            "mutant": '',
+            "prefix": "{}-".format(version)
+        }
+        print(args)
+        ns = argparse.Namespace()
+        ns.send_message = msg
+        ns.local = args.local
+        message_id = send_message(ns)
+        ans.append(message_id)
     print('{} benchmark jobs created'.format(len(ans)))
     return ans
 

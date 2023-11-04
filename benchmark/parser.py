@@ -118,6 +118,12 @@ def mk_arg_parser() -> argparse.ArgumentParser:
         default="",
         help="save output with a prefix (default: '%(default)s')",
     )
+    runner.add_argument(
+        "--extra-args",
+        metavar="ARGS",
+        default="",
+        help="extra arguments for tool (default: '%(default)s')",
+    )
 
     # analyser options
 

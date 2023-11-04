@@ -14,8 +14,8 @@ def handle_message(body: str, local: bool) -> str:
     logging.info("Received message: " + str(body))
     data = json.loads(body)
     if local:
-        cmd("python3 -m benchmark runner --preprocess {} --postprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {}".format(data["preprocess"], data["postprocess"],
-            data["tool"], data["project"], data["test"], data["mutant"], data["timeout"], data["prefix"]))
+        cmd("python3 -m benchmark runner --preprocess {} --postprocess {} --tool {} --project {} --test {} --mutant {} --timeout {} --prefix {} --extra-args {}".format(data["preprocess"], data["postprocess"],
+            data["tool"], data["project"], data["test"], data["mutant"], data["timeout"], data["prefix"], data["extra_args"]))
         return ''
     else:
         ecs = boto3.client('ecs')
@@ -35,7 +35,10 @@ def handle_message(body: str, local: bool) -> str:
                 'containerOverrides': [
                     {
                         'name': environ['ECS_CONTAINER_NAME'],
-                        'command': ["--", "runner", "--preprocess", data["preprocess"], "--postprocess", data["postprocess"], "--tool", data["tool"], "--project", data["project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", str(data["timeout"]), "--prefix", data["prefix"]],
+                        'command': [
+                            "--", "runner", "--preprocess", data["preprocess"], "--postprocess", data["postprocess"], "--tool", data["tool"], "--project", data[
+                                "project"], "--test", data["test"], "--mutant", data["mutant"], "--timeout", str(data["timeout"]), "--prefix", data["prefix"], "--extra-args", data["extra_args"]
+                        ],
                     }
                 ]
             },
