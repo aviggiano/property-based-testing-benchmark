@@ -35,17 +35,25 @@ contract HalmosTester is TargetFunctions, SymTest, HalmosAsserts {
 
     function assumeSuccessfulCall(bytes4 selector) internal {
         if (selector == minivat.init.selector) {
-            try this.init() {} catch {}
+            try this.init() {} catch {
+                vm.assume(false);
+            }
         } else if (selector == minivat.move.selector) {
             address dst = svm.createAddress("dst");
             int256 wad = svm.createInt256("wad");
-            try this.move(dst, wad) {} catch {}
+            try this.move(dst, wad) {} catch {
+                vm.assume(false);
+            }
         } else if (selector == minivat.frob.selector) {
             int256 dart = svm.createInt256("dart");
-            try this.frob(dart) {} catch {}
+            try this.frob(dart) {} catch {
+                vm.assume(false);
+            }
         } else if (selector == minivat.fold.selector) {
             int256 delta = svm.createInt256("delta");
-            try this.fold(delta) {} catch {}
+            try this.fold(delta) {} catch {
+                vm.assume(false);
+            }
         } else {
             // selector bytes4(0) means "skip this call"
         }
