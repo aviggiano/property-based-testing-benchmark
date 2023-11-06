@@ -1,0 +1,4 @@
+testMode: property
+testLimit: 4294967295
+prefix: invariant
+stopOnFail: true

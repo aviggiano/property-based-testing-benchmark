@@ -25,3 +25,6 @@
 [submodule "projects/dai-certora/lib/halmos-cheatcodes"]
 	path = projects/dai-certora/lib/halmos-cheatcodes
 	url = https://github.com/a16z/halmos-cheatcodes
+[submodule "projects/dai-certora/lib/chimera"]
+	path = projects/dai-certora/lib/chimera
+	url = https://github.com/aviggiano/chimera
