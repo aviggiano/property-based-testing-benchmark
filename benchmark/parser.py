@@ -91,8 +91,14 @@ def mk_arg_parser() -> argparse.ArgumentParser:
     runner.add_argument(
         "--project",
         metavar="PROJECT",
-        choices=["abdk-math-64x64", "uniswap-v2"],
+        choices=["abdk-math-64x64", "uniswap-v2", "dai-certora"],
         help="test against a specific project",
+    )
+    runner.add_argument(
+        "--contract",
+        metavar="CONTRACT",
+        default="",
+        help="run tests matching a given contract (default: '%(default)s')",
     )
     runner.add_argument(
         "--test",

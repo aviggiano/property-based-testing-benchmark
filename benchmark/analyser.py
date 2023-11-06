@@ -26,6 +26,7 @@ def analyse_results(args: dict):
         objects = []
         for key in keys:
             data = get_object(key, args.local)
+            print(data)
             save_file('/tmp/{}'.format(key), data.decode('utf-8'))
             obj = json.loads(data)
             objects.append(obj)
