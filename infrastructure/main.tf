@@ -199,10 +199,10 @@ resource "aws_ecs_task_definition" "runner" {
       }
     }
   }])
-  cpu                      = 8192
+  cpu                      = 16384
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   family                   = "${local.namespace}-runner"
-  memory                   = 16384
+  memory                   = 65536
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 }

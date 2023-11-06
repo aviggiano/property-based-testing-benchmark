@@ -89,26 +89,32 @@ def full_benchmark_abdk_math_64x64(args: dict) -> List[str]:
 def full_benchmark(args: dict) -> List[str]:
     version = time.strftime("%s")
     ans = []
-    loops = ['2', '3', '4', '5']
-    for loop in loops:
-        msg = {
-            "tool": 'halmos',
-            "project": 'dai-certora',
-            'preprocess': '',
-            'postprocess': '',
-            'contract': 'MiniVatTest',
-            'extra_args': '--loop {}'.format(loop),
-            "test": 'check_minivat_n_full_symbolic',
-            "timeout": 3600,
-            "mutant": '',
-            "prefix": "{}-".format(version)
-        }
-        print(args)
-        ns = argparse.Namespace()
-        ns.send_message = msg
-        ns.local = args.local
-        message_id = send_message(ns)
-        ans.append(message_id)
+    tools = ['halmos', 'foundry', 'echidna', 'medusa']
+    loops = ['2', '3', '4']
+    for tool in tools:
+        i = 0
+        for loop in loops:
+            if tool != 'halmos' and i > 0:
+                continue
+            i += 1
+            extra_args = tool_cmd(tool, loop)
+            msg = {
+                "tool": tool,
+                "project": 'dai-certora',
+                'preprocess': '',
+                'postprocess': '',
+                'extra_args': extra_args,
+                "test": 'check_minivat_n_full_symbolic',
+                "timeout": 3600,
+                "mutant": '',
+                "prefix": "{}-".format(version)
+            }
+            print(args)
+            ns = argparse.Namespace()
+            ns.send_message = msg
+            ns.local = args.local
+            message_id = send_message(ns)
+            ans.append(message_id)
     print('{} benchmark jobs created'.format(len(ans)))
     return ans
 
@@ -117,6 +123,19 @@ def get_all_mutants() -> List[str]:
     status, stdout, stderr = cmd(
         "find mutants | sed 's/mutants\/\(.*\)\-.*/\\1/'")
     return stdout.split('\n')
+
+
+def tool_cmd(tool: str, loop: str) -> str:
+    if tool == 'halmos':
+        return 'halmos --function check_minivat_n_full_symbolic --contract HalmosTester -vvv --solver-parallel --solver-timeout-assertion 0 --loop {}'.format(loop)
+    elif tool == 'foundry':
+        return 'forge test --match-contract FoundryTester'
+    elif tool == 'medusa':
+        return 'medusa fuzz --no-color'
+    elif tool == 'echidna':
+        return 'echidna . --contract CryticTester --config config.yaml'
+    else:
+        raise Exception("Unknown tool {}".format(tool))
 
 
 def get_mutants_by_test(all_mutants: List[str], test: str) -> List[str]:

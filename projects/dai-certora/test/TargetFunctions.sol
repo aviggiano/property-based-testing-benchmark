@@ -7,7 +7,7 @@ import {MiniVat} from "../src/MiniVat.sol";
 /**
  * halmos --function check_minivat_n_full_symbolic --contract HalmosTester -vvv --solver-parallel --solver-timeout-assertion 0 --loop 2
  * forge test --match-contract FoundryTester
- * medusa fuzz
+ * medusa fuzz --no-color
  * echidna . --contract CryticTester --config config.yaml
  */
 abstract contract TargetFunctions is BaseTargetFunctions {

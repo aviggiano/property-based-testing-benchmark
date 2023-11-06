@@ -14,10 +14,6 @@ def run_benchmark(args: dict):
     logging.info('Running benchmark {}'.format(job_id))
 
     chdir('projects/{}'.format(quote(args.project)))
-    if args.contract != '':
-        contract = args.contract
-    else:
-        contract = get_contract(args.test)
 
     # FIXME use filterFunctions
     # for fun in get_functions():
@@ -32,24 +28,7 @@ def run_benchmark(args: dict):
     with open(output_filename, 'a+') as f:
         f.close()
 
-    tool_cmd = 'timeout -k 10 {} '.format(args.timeout)
-    if args.tool == 'halmos':
-        tool_cmd += "halmos --statistics --json-output {} --solver-parallel --test-parallel --function '\\b{}\\b' --contract {} {}".format(
-            output_filename, args.test, contract, args.extra_args)
-    elif args.tool == 'foundry':
-        tool_cmd += "forge test --match-test '\\b{}\\b' {}".format(
-            args.test, args.extra_args)
-    elif args.tool == 'echidna':
-        # TODO update filtering for echidna
-        # cmd('echo ' + '\'filterFunctions: [\"{}.{}\"]'.format(contract, function_with_args) + '\' >> config.yaml')
-        tool_cmd += "echidna . --contract {} --config config.yaml {}".format(
-            contract, args.extra_args)
-    elif args.tool == 'medusa':
-        # TODO implement filtering for medusa
-        tool_cmd += "medusa fuzz --no-color --target-contracts {} {}".format(
-            contract, args.extra_args)
-    else:
-        raise ValueError('Unknown tool: {}'.format(args.tool))
+    tool_cmd = 'timeout -k 10 {} {}'.format(args.timeout, args.extra_args)
 
     if args.preprocess != '':
         cmd(args.preprocess)
@@ -63,7 +42,6 @@ def run_benchmark(args: dict):
         'job_id': job_id,
         'tool': args.tool,
         'project': args.project,
-        'contract': contract,
         'test': args.test,
         'preprocess': args.preprocess,
         'postprocess': args.postprocess,
