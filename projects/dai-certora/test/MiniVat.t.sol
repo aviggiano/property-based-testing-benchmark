@@ -13,7 +13,7 @@ contract MiniVatTest is Test, SymTest {
         minivat = new MiniVat();
     }
 
-    function test_minivat_counterexample(int256 x, int256 y) external {
+    function test_minivat_counterexample(int256 x, int256 y) public {
         // x = 10 ** 18
         // y = -10 ** 27
 
@@ -22,7 +22,11 @@ contract MiniVatTest is Test, SymTest {
         try minivat.fold(y) {} catch {}
         try minivat.init() {} catch {}
 
-        assert(minivat.debt() == minivat.Art() * minivat.rate());
+        assertEq(
+            minivat.debt(),
+            minivat.Art() * minivat.rate(),
+            "The Fundamental Equation of DAI"
+        );
     }
 
     function check_minivat_counterexample_2() public {
@@ -57,7 +61,11 @@ contract MiniVatTest is Test, SymTest {
         assumeSuccessfulCall(address(minivat), concreteCalldataFor(sel3));
         assumeSuccessfulCall(address(minivat), concreteCalldataFor(sel4));
 
-        assert(minivat.debt() == minivat.Art() * minivat.rate());
+        assertEq(
+            minivat.debt(),
+            minivat.Art() * minivat.rate(),
+            "The Fundamental Equation of DAI"
+        );
     }
 
     function test_minivat_n_symbolic_selectors(
@@ -73,7 +81,11 @@ contract MiniVatTest is Test, SymTest {
             }
         }
 
-        assert(minivat.debt() == minivat.Art() * minivat.rate());
+        assertEq(
+            minivat.debt(),
+            minivat.Art() * minivat.rate(),
+            "The Fundamental Equation of DAI"
+        );
     }
 
     function check_minivat_seq_full_symbolic(
@@ -87,21 +99,24 @@ contract MiniVatTest is Test, SymTest {
         assumeSuccessfulCall(address(minivat), calldataFor(sel3));
         assumeSuccessfulCall(address(minivat), calldataFor(sel4));
 
-        assert(minivat.debt() == minivat.Art() * minivat.rate());
+        assertEq(
+            minivat.debt(),
+            minivat.Art() * minivat.rate(),
+            "The Fundamental Equation of DAI"
+        );
     }
 
     function check_minivat_n_full_symbolic(bytes4[] memory selectors) public {
         for (uint256 i = 0; i < selectors.length; ++i) {
             assumeValidSelector(selectors[i]);
-            if (selectors[i] != bytes4(0)) {
-                assumeSuccessfulCall(
-                    address(minivat),
-                    calldataFor(selectors[i])
-                );
-            }
+            assumeSuccessfulCall(address(minivat), calldataFor(selectors[i]));
         }
 
-        assert(minivat.debt() == minivat.Art() * minivat.rate());
+        assertEq(
+            minivat.debt(),
+            minivat.Art() * minivat.rate(),
+            "The Fundamental Equation of DAI"
+        );
     }
 
     function calldataFor(bytes4 selector) internal view returns (bytes memory) {
@@ -134,8 +149,10 @@ contract MiniVatTest is Test, SymTest {
             return abi.encodeWithSelector(selector, 10 ** 18);
         } else if (selector == minivat.fold.selector) {
             return abi.encodeWithSelector(selector, -10 ** 27);
+        } else if (selector == bytes4(0)) {
+            return abi.encodeWithSelector(selector);
         } else {
-            return svm.createBytes(1024, "data");
+            revert();
         }
     }
 
@@ -150,6 +167,9 @@ contract MiniVatTest is Test, SymTest {
     }
 
     function assumeSuccessfulCall(address target, bytes memory data) internal {
+        // selector bytes4(0) means "skip this call"
+        if (keccak256(data) == keccak256(abi.encodeWithSelector(bytes4(0)))) return;
+
         bool success;
         (success, ) = target.call(data);
         vm.assume(success);
