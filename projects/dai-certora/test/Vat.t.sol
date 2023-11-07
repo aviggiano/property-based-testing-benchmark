@@ -3,10 +3,11 @@ pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
+import {HalmosAsserts} from "chimera/HalmosAsserts.sol";
 
 import "../src/Vat.sol";
 
-contract VatTest is Test {
+contract VatTest is Test, HalmosAsserts {
     Vat vat;
     bytes32 ilk;
 
@@ -27,23 +28,36 @@ contract VatTest is Test {
         ilk = "gems";
 
         vat.init("gems");
-        vat.file("gems", "spot", ray(0.5  ether));
+        vat.file("gems", "spot", ray(0.5 ether));
         vat.file("gems", "line", rad(1000 ether));
-        vat.file("Line",         rad(1000 ether));
+        vat.file("Line", rad(1000 ether));
     }
 
-    function test_vat_counterexample(int256 x, int256 y, int256 z, int256 w) external {
+    function check_vat_counterexample(
+        int256 var1,
+        int256 var2,
+        int256 var3,
+        int256 var4
+    ) external {
+        var1 = between(var1, -10 * int256(WAD), 10 * int256(WAD));
+        var2 = between(var2, -10 * int256(WAD), 10 * int256(WAD));
+        var3 = between(var3, -10 * int256(WAD), 10 * int256(WAD));
+        var4 = between(var4, -2 * int256(RAY), 2 * int256(RAY));
         address me = address(this);
 
-        // x = 8 ether;
-        // y = 4 ether;
-        // z = 4 ether;
-        // w = -int256(RAY);
+        // var1 = 8 ether;
+        // var2 = 4 ether;
+        // var3 = 4 ether;
+        // var4 = -int256(RAY);
 
-        try vat.slip(ilk, me, x) {} catch {}
-        try vat.frob(ilk, me, me, me, y, z) {} catch {}
-        try vat.fold(ilk, me, w) {} catch {}
-        try vat.init(ilk) {} catch {}
-        assertEq(vat.debt(), vat.Art(ilk) * vat.rate(ilk), "The Fundamental Equation of DAI");
+        vat.slip(ilk, me, var1);
+        vat.frob(ilk, me, me, me, var2, var3);
+        vat.fold(ilk, me, var4);
+        vat.init(ilk);
+        assertEq(
+            vat.debt(),
+            vat.Art(ilk) * vat.rate(ilk),
+            "The Fundamental Equation of DAI"
+        );
     }
 }
