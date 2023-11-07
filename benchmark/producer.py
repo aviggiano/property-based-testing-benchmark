@@ -86,7 +86,7 @@ def full_benchmark_abdk_math_64x64(args: dict) -> List[str]:
     return ans
 
 
-def full_benchmark(args: dict) -> List[str]:
+def full_benchmark_dai_certora(args: dict) -> List[str]:
     version = time.strftime("%s")
     ans = []
     tools = ['halmos', 'foundry', 'echidna', 'medusa']
@@ -116,6 +116,33 @@ def full_benchmark(args: dict) -> List[str]:
             ns.local = args.local
             message_id = send_message(ns)
             ans.append(message_id)
+    print('{} benchmark jobs created'.format(len(ans)))
+    return ans
+
+
+def full_benchmark(args: dict) -> List[str]:
+    version = time.strftime("%s")
+    ans = []
+    tool = 'foundry'
+    extra_args = "forge test --match-test '\\btest_minivat_counterexample\\b' --fuzz-runs 1000000000"
+    msg = {
+        "tool": tool,
+        "project": 'dai-certora',
+        'preprocess': '',
+        'postprocess': '',
+        'contract': '',
+        'extra_args': extra_args,
+        "test": '\\btest_minivat_counterexample\\b',
+        "timeout": 3600,
+        "mutant": '',
+        "prefix": "{}-".format(version)
+    }
+    print(args)
+    ns = argparse.Namespace()
+    ns.send_message = msg
+    ns.local = args.local
+    message_id = send_message(ns)
+    ans.append(message_id)
     print('{} benchmark jobs created'.format(len(ans)))
     return ans
 

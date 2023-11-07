@@ -13,9 +13,16 @@ contract MiniVatTest is Test, SymTest {
         minivat = new MiniVat();
     }
 
-    function test_minivat_counterexample(int256 x, int256 y) public {
+    function test_minivat_counterexample(int64 x, int96 y) public {
+        // int256, int256
         // x = 10 ** 18
         // y = -10 ** 27
+
+
+        // NOTE: Halmos does not finish in 1h using (int256, int256), but it does in 16s using (int64, int96)
+        // Counterexample:
+        //     p_x_int64 = 0x0000000000000000000000000000000000000000000000005e96bb957dca0ee7 (6815841336806739687)
+        //     p_y_int96 = 0xfffffffffffffffffffffffffffffffffffffffffcc4d1c3602f7fc318000000 (-1000000000000000000000000000)
 
         try minivat.init() {} catch {
             vm.assume(false);
