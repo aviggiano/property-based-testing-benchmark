@@ -39,6 +39,7 @@ contract VatTest is Test, HalmosAsserts {
         int256 var3,
         int256 var4
     ) external {
+
         var1 = between(var1, -10 * int256(WAD), 10 * int256(WAD));
         var2 = between(var2, -10 * int256(WAD), 10 * int256(WAD));
         var3 = between(var3, -10 * int256(WAD), 10 * int256(WAD));
@@ -49,6 +50,13 @@ contract VatTest is Test, HalmosAsserts {
         // var2 = 4 ether;
         // var3 = 4 ether;
         // var4 = -int256(RAY);
+
+        // Counterexample:
+        //     p_var1_int256 = 0x0000000000000000000000000000000000000000000000008ac7230489e80000 (10000000000000000000)
+        //     p_var2_int256 = 0x0000000000000000000000000000000000000000000000008ac7230489e80000 (10000000000000000000)
+        //     p_var3_int256 = 0x00000000000000000000000000000000000000000000000089f710a3ca1a935f (9941432998100112223)
+        //     p_var4_int256 = 0xfffffffffffffffffffffffffffffffffffffffffcc4d1c3602f7fc318000000 (-1000000000000000000000000000)
+
 
         vat.slip(ilk, me, var1);
         vat.frob(ilk, me, me, me, var2, var3);

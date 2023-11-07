@@ -12,6 +12,9 @@ import {MiniVat} from "../src/MiniVat.sol";
  */
 abstract contract TargetFunctions is BaseTargetFunctions {
     MiniVat public minivat;
+    int256 constant FROB_BOUND = 2 * 10 ** 18;
+    int256 constant FOLD_BOUND = 2 * 10 ** 27;
+    int256 constant MOVE_BOUND = 2 * 10 ** 18;
 
     function setup() internal override {
         minivat = new MiniVat();
@@ -22,19 +25,19 @@ abstract contract TargetFunctions is BaseTargetFunctions {
     }
 
     function frob(int256 x) public {
-        x = between(x, -2 * 10 ** 18, 2 * 10 ** 18);
+        x = between(x, -FROB_BOUND, FROB_BOUND);
 
         minivat.frob(x);
     }
 
     function fold(int256 y) public {
-        y = between(y, -2 * 10 ** 27, 2 * 10 ** 27);
+        y = between(y, -FOLD_BOUND, FOLD_BOUND);
 
         minivat.fold(y);
     }
 
     function move(address dst, int256 wad) public {
-        wad = between(wad, -2 * 10 ** 18, 2 * 10 ** 18);
+        wad = between(wad, -MOVE_BOUND, MOVE_BOUND);
 
         minivat.move(dst, wad);
     }
