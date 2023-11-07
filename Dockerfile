@@ -21,25 +21,6 @@ RUN add-apt-repository -y ppa:git-core/ppa
 RUN apt-get update
 RUN apt-get install -y git
 
-
-
-# RUN echo "Install Node.js"
-# ENV NODE_VERSION=18.18.2
-# RUN apt install -y curl
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-# ENV NVM_DIR=/root/.nvm
-# RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-# RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
-# RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-# ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
-# RUN node --version
-# RUN npm --version
-# 
-# RUN echo "Install yarn"
-# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-# RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-# RUN apt update && apt install -y yarn
-
 RUN echo "Install solc-select"
 RUN pip3 install solc-select
 
@@ -76,6 +57,7 @@ RUN rm medusa-linux-x64.tar.gz
 RUN export PATH="$PATH:/usr/local/bin/medusa"
 
 RUN echo "Install halmos"
+# Using experimental `early-exit` branch
 RUN pip3 install git+https://github.com/a16z/halmos@early-exit
 
 COPY . .
