@@ -48,8 +48,6 @@ def run_benchmark(args: dict):
         'extra_args': args.extra_args,
         'tool_cmd': tool_cmd,
         'mutant': args.mutant,
-        'start_time': start_time,
-        'end_time': end_time,
         'time': end_time - start_time,
         'status': status,
         'output': output,

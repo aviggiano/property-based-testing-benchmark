@@ -103,6 +103,7 @@ def full_benchmark(args: dict) -> List[str]:
                 "project": 'dai-certora',
                 'preprocess': '',
                 'postprocess': '',
+                'contract': '',
                 'extra_args': extra_args,
                 "test": 'check_minivat_n_full_symbolic',
                 "timeout": 3600,

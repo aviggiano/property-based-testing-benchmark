@@ -118,7 +118,7 @@ def poll_messages(args: dict):
                 except RunTaskException:
                     logging.info(
                         "Retrying message after queue visibility timeout")
-                except Exception:
-                    logging.info("Generic error")
+                except Exception as e:
+                    logging.critical(e, exc_info=True)
                     delete_message(message)
                     continue

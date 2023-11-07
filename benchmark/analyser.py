@@ -161,7 +161,7 @@ def load_csv(filename: str) -> List[dict]:
 
 def print_fuzzer_misses(df):
     logging.info("start fuzzer misses (halmos proved FALSE but fuzzer didn't)")
-    grouped = df.groupby(['project', 'contract', 'test', 'mutant'])
+    grouped = df.groupby(['project', 'test', 'mutant'])
 
     for name, group in grouped:
         halmos_proved_false = group[(
