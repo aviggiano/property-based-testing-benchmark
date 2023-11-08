@@ -1,4 +1,4 @@
-pragma solidity 0.8.17;
+pragma solidity ^0.8.13;
 
 /**
  * @title A library for deploying contracts EIP-3171 style.

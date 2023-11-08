@@ -17,10 +17,18 @@ contract Create3Test is Test {
     function test_create3() public {
         Deployer.Addresses memory addr = deployer.getFutureAddresses();
 
-        counter =
-            Counter(deployer.deploy(deployer.COUNTER(), abi.encodePacked(type(Counter).creationCode, abi.encode(1337))));
+        counter = Counter(
+            deployer.deploy(
+                deployer.COUNTER(),
+                abi.encodePacked(type(Counter).creationCode, abi.encode(1337))
+            )
+        );
 
         assertTrue(address(counter) != address(0));
         assertTrue(address(counter) == addr.counterAddress);
+        counter.increment();
+        assertEq(counter.number(), 1338);
+        counter.setNumber(42);
+        assertEq(counter.number(), 42);
     }
 }
