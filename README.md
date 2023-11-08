@@ -27,6 +27,12 @@ Run the benchmark
 python3 -m benchmark producer --full-benchmark
 ```
 
+Analyse the results
+
+```bash
+python3 -m benchmark analyser
+```
+
 ## Project structure
 
 - [Dockerfile](./Dockerfile): Install all referenced tools and [benchmark](./benchmark/) scripts
