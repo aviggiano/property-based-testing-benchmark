@@ -44,7 +44,7 @@ contract MiniVatTest is Test, SymTest {
         );
     }
 
-    function test_minivat_counterexample_2_calls() public {
+    function test_2_calls_minivat_counterexample() public {
         bytes4[] memory selectors = new bytes4[](2);
         selectors[0] = minivat.frob.selector;
         selectors[1] = minivat.init.selector;
@@ -52,7 +52,7 @@ contract MiniVatTest is Test, SymTest {
     }
 
 
-    function check_minivat_counterexample_4_calls() public {
+    function check_4_calls_minivat_counterexample() public {
         check_minivat_seq_full_symbolic(
             minivat.init.selector,
             minivat.frob.selector,

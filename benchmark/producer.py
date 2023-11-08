@@ -124,15 +124,15 @@ def full_benchmark(args: dict) -> List[str]:
     version = time.strftime("%s")
     ans = []
     tool = 'foundry'
-    extra_args = "forge test --match-test '\\btest_minivat_counterexample\\b' --fuzz-runs 1000000000"
+    extra_args = "forge test --match-test test_minivat_counterexample --match-contract MiniVatTest --fuzz-runs 1000000000"
     msg = {
         "tool": tool,
         "project": 'dai-certora',
         'preprocess': '',
         'postprocess': '',
-        'contract': '',
+        'contract': 'MiniVatTest',
         'extra_args': extra_args,
-        "test": '\\btest_minivat_counterexample\\b',
+        "test": 'test_minivat_counterexample',
         "timeout": 3600,
         "mutant": '',
         "prefix": "{}-".format(version)
