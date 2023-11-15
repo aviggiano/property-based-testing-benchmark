@@ -150,7 +150,7 @@ contract MiniVatTest is Test, SymTest {
         } else if (selector == minivat.fold.selector) {
             return abi.encodeWithSelector(selector, svm.createInt256("delta"));
         } else {
-            return svm.createBytes(1024, "data");
+            revert();
         }
     }
 
@@ -183,9 +183,6 @@ contract MiniVatTest is Test, SymTest {
     }
 
     function assumeSuccessfulCall(address target, bytes memory data) internal {
-        // selector bytes4(0) means "skip this call"
-        if (keccak256(data) == keccak256(abi.encodeWithSelector(bytes4(0)))) return;
-
         bool success;
         (success, ) = target.call(data);
         vm.assume(success);
